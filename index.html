@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Wget</title>
+    <link rel="stylesheet" href="link/style.css">
+    <link rel="stylesheet" href="link/media.css" media="screen  and (min-width: 768px)">
+    <script src="link/jquery.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="box_body">
+      <div class="inside_box">
+        <!-- Logo box div -->
+        <div class="logo font1">
+          <span>CNGEGE Wget</span>
+        </div>
+        <!-- Download input div -->
+        <div class="download_box">
+          <div class="download_input">
+            <input type="text" class="font3" placeholder="填入下载URL地址">
+          </div>
+          <div class="download_btn font2">
+            <button type="button" name="button">下载</button>
+          </div>
+        </div>
+        <!-- download list div -->
+        <div class="download_list">
+          <div class="download">
+            <!-- 控制按钮 打开 下载 删除 -->
+            <div class="control_btn">
+              <div class="open_btn" title="浏览器打开">
+                <svg t="1602764037112" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1201" width="20" height="20"><path d="M941 300.3v-32.4c0-72.1-58.7-130.8-130.8-130.8H603c-26.1 0-51.7-10.6-70.1-29.3-34.7-35-82.8-55-132-55H199.8C127.6 52.8 69 111.5 69 183.6v126C24.5 343.6-3.4 398.2 0.4 458.8l21.8 348.8c5.7 91.9 82 163.5 174.1 163.5h631.6c92.1 0 168.3-71.6 174.1-163.5l21.8-348.8c4-66.6-30.2-125.8-82.8-158.5zM156.2 183.6c0-24.1 19.5-43.6 43.6-43.6h201.1c26.1 0 51.7 10.6 70.1 29.2 34.6 35 82.7 55.1 132 55.1h207.2c24.1 0 43.6 19.5 43.6 43.6v6.1c-1.4 0-2.8-0.4-4.2-0.4H174.4c-6.3 0-12.2 1.3-18.2 1.9v-91.9z m758.6 618.6c-2.9 45.8-41.1 81.8-87 81.8H196.2c-45.9 0-84.2-35.9-87-81.8L87.4 453.4c-1.5-24.3 6.8-47.4 23.5-65.1 16.7-17.7 39.2-27.5 63.6-27.5h675.2c24.3 0 46.9 9.8 63.6 27.5 16.7 17.7 25 40.9 23.5 65.1l-22 348.8z" p-id="1202"></path></svg>
+              </div>
+              <div class="down_btn" title="下载">
+                <svg t="1602764122375" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1991" width="20" height="20"><path d="M1024 640.192C1024 782.912 919.872 896 787.648 896h-512C123.904 896 0 761.6 0 597.504 0 451.968 94.656 331.52 226.432 302.976 284.16 195.456 391.808 128 512 128c152.32 0 282.112 108.416 323.392 261.12C941.888 413.44 1024 519.04 1024 640.192z m-682.688-70.016L512 756.48l170.688-186.24H341.312z m213.376 0v-256h-85.376v256h85.376z" fill="#595959" p-id="1992"></path></svg>
+              </div>
+              <div class="delete_btn" title="删除">
+                <svg t="1602764166454" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2836" width="20" height="20"><path d="M517.59 21.609c-100.299 0-181.703 79.514-185.167 179.34H98.603c-25.979 0-47.235 21.099-47.235 47.236 0 25.98 21.099 47.237 47.236 47.237h52.117v528.416c0 99.196 67.233 180.285 150.37 180.285h423.55c82.98 0 150.37-80.616 150.37-180.285V295.737h47.236c25.98 0 47.236-21.1 47.236-47.237 0-25.98-21.099-47.236-47.236-47.236H702.441C699.449 101.124 617.888 21.61 517.59 21.61z m-96.677 179.34c3.464-51.172 45.19-90.85 96.834-90.85s93.37 39.835 96.362 90.85H420.913z m-119.98 714.842c-29.444 0-61.88-37.789-61.88-91.953V295.737h547.311V824.31c0 54.007-32.436 91.954-61.88 91.954H300.933v-0.473z m0 0" p-id="2837"></path><path d="M364.387 802.267c21.57 0 39.363-21.571 39.363-48.653V476.022c0-27.082-17.635-48.654-39.363-48.654-21.572 0-39.364 21.572-39.364 48.654v277.592c0 26.924 17.32 48.653 39.364 48.653z m142.496 0c21.571 0 39.363-21.571 39.363-48.653V476.022c0-27.082-17.635-48.654-39.363-48.654-21.571 0-39.364 21.572-39.364 48.654v277.592c0 26.924 17.793 48.653 39.364 48.653z m149.896 0c21.571 0 39.364-21.571 39.364-48.653V476.022c0-27.082-17.635-48.654-39.364-48.654-21.571 0-39.363 21.572-39.363 48.654v277.592c0 26.924 17.162 48.653 39.363 48.653z m0 0" p-id="2838"></path></svg>
+              </div>
+            </div>
+            <span class="name">文件名</span>
+            <span class="size">50Mb</span>
+          </div>
+        </div>
+        <!-- copyright div -->
+        <div class="copyright font4">
+          <span>copyright © cngege 2020</span>
+        </div>
+      </div>
+    </div>
+    <!-- 安装配置窗口div -->
+    <div class="install" style="display:none">
+      <!-- 检查CURL扩展 -->
+      <div class="install_curl" style="display:none">
+        <span><p>检查服务器扩展</p></span>
+        <div class="_curl">
+          <span>curl_init</span>
+          <span id="is_ins_curl">未安装</span>
+        </div>
+        <button type="button" name="button">下一步</button>
+      </div>
+      <!-- 设置存储目录 -->
+      <div class="setpath" style="display:none">
+        <span><p>设置下载文件保存路径</p></span>
+        <div class="inputpath">
+          <input type="text" placeholder="离线文件保存路径[斜杠结尾]">
+        </div>
+        <button type="button" name="button">下一步</button>
+      </div>
+      <!-- 设置管理员密码 -->
+      <div class="setpasswd" style="display:none">
+        <span><p>设置管理员密码</p></span>
+        <div class="inputpasswd">
+          <input type="password" placeholder="填写密码">
+        </div>
+        <button type="button" name="button">完成</button>
+      </div>
+      <!-- 登录 -->
+      <div class="login" style="display:none">
+        <span><p>登录</p></span>
+        <div class="inputpasswd">
+          <input type="password" placeholder="填写密码">
+        </div>
+        <button type="button" name="button">完成</button>
+      </div>
+    </div>
+  <script src="link/script.js" charset="utf-8"></script>
+  </body>
+</html>
