@@ -1,19 +1,114 @@
 //服务器地址 调试用 同目录下不填
 let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
 //let serveraddr="";
+let func = [];
 
 $(function(){
   //第一次打开页面的时候就获取一次文件列表
   getfilelist()
+  setInterval(function(){
+    for(i = 0;i<func.length;i++){
+      if(typeof func[i] == "object" && typeof func[i][1] == "function"){
+        func[i][1](func[i][0],i);
+      }
+    }
+  },1000)
 })
 
-function getfilelist(){
-  $.ajax({url:serveraddr+"download.php",data:{type:"getfilelist"},success:function(e){
-      if(code(e)){
-        alert(JSON.stringify(e.value));
+
+
+
+
+
+
+//URL下载btn:
+$(".download_box .download_btn button").click(function(event) {
+  /* Act on the event */
+  let input = $(".download_input input");
+  if(input.val()!==''){
+    $.ajax({  //不要返回值 告诉服务器离线下载
+      url: serveraddr+"download.php",
+      data: {type: 'curl',url:input.val()},
+      timeout: 20,
+    })
+
+    $.ajax({
+      url: serveraddr+"download.php",
+      dataType: 'json',
+      data: {type: 'getdowninfo_one',url:input.val()},
+      success:function(e){
+        if(code(e)){
+          if(e.value!==false){
+            let d = $(".copyright .download").clone(true);
+            d.css("display","");
+            //d.find('.name').text(e.value[i].filename);
+            //d.find('.size').text(renderSize(e.value[i].filesize));
+            //d.data('data', e.value[i]);
+            d.data('type', "downinfo");
+            // d.find('.open_btn').click(function(event) {
+            //   /* Act on the event */
+            //   //alert($(this).parent().parent().data("data").file)
+            //   window.open($(this).parent().parent().data("data").file)
+            // });
+            // d.find('.down_btn').click(function(event) {
+            //   /* Act on the event */
+            //   let eve = $(this).parent().parent().data("data");
+            //   window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
+            // });
+            // d.find('.delete_btn').click(function(event) {
+            //   /* Act on the event */
+            //   let eve = $(this).parent().parent().data("data");
+            //   $.ajax({
+            //     url:serveraddr+"download.php",
+            //     data:{type:"delfile",file:eve.filename},
+            //     success:function(e){
+            //       if(code(e)){
+            //         if(e.value){
+            //           d.hide();
+            //         }else{
+            //           alert("删除失败");
+            //         }
+            //       }
+            //     }
+            //   })
+            //
+            // });
+            //d.prependTo($(".download_list"));
+            d.appendTo($(".download_list"));
+
+            input.val('');
+
+            func.push([d,function(_e,i){
+              if(_e.is(':hidden')){
+                func[i]=[];
+              }else{
+                $.ajax({//请求下载进度
+                  url: serveraddr+e.value,
+                  dataType: 'json',
+                  success:function(e){
+                    if(!e.fail){
+                      _e.find('.name').text(e.filename);
+                      _e.find('.size').text(renderSize(e.maxsize));
+                      _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize)+"%")
+                    }
+                  }
+                })
+              }
+
+            }]);
+
+          }else{
+            alert("调试:服务器没有发现下载信息文件");
+          }
+        }
       }
-  }});
-}
+    })
+
+
+  }
+
+});
+
 
 //安装配置页 判断是否有加载必须插件[按钮]
 $(".install .install_curl button").click(function(event) {
@@ -74,6 +169,7 @@ $(".install .login button").click(function(event) {
         if(e.value){
           $(".install .setpasswd").css("display","none");
           $(".install").css("display","none");
+          getfilelist();
         }else{
           alert("密码不正确");
         }
@@ -85,11 +181,68 @@ $(".install .login button").click(function(event) {
 
 
 
+//获取并设置文件夹内文件
+function getfilelist(){
+  $.ajax({url:serveraddr+"download.php",data:{type:"getfilelist"},success:function(e){
+      if(code(e)){
+        //alert(JSON.stringify(e.value));
+        for(let i in e.value){
+          //e.value[i].filename
+          let d = $(".copyright .download").clone(true);
+          d.css("display","");
+          d.find('.name').text(e.value[i].filename);
+          d.find('.size').text(renderSize(e.value[i].filesize));
+          d.data('data', e.value[i]);
+          d.data('type', "file");
+          d.find('.open_btn').click(function(event) {
+            /* Act on the event */
+            //alert($(this).parent().parent().data("data").file)
+            window.open($(this).parent().parent().data("data").file)
+          });
+          d.find('.down_btn').click(function(event) {
+            /* Act on the event */
+            let eve = $(this).parent().parent().data("data");
+            window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
+          });
+          d.find('.delete_btn').click(function(event) {
+            /* Act on the event */
+            let eve = $(this).parent().parent().data("data");
+            $.ajax({
+              url:serveraddr+"download.php",
+              data:{type:"delfile",file:eve.filename},
+              success:function(e){
+                if(code(e)){
+                  if(e.value){
+                    d.hide();
+                  }else{
+                    alert("删除失败");
+                  }
+                }
+              }
+            })
 
+          });
+          //d.prependTo($(".download_list"));
+          d.appendTo($(".download_list"));
+        }
+      }
+  }});
+}
 
-
-
-
+//计算大小 自动配置单位
+function renderSize(value){
+    if(null==value||value==''){
+        return "0 Bytes";
+    }
+    var unitArr = new Array("Bytes","KB","MB","GB","TB","PB","EB","ZB","YB");
+    var index=0,
+        srcsize = parseFloat(value);
+ index=Math.floor(Math.log(srcsize)/Math.log(1024));
+    var size =srcsize/Math.pow(1024,index);
+    //  保留的小数位数
+    size=size.toFixed(2);
+    return size+unitArr[index];
+}
 
 function code(event){
   num = event.code;

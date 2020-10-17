@@ -126,18 +126,17 @@ html,body{
 }
 
 /* 进度条 */
-.download_list .download::before{
-  content: '';
+.download_list .download .downloadbar{
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 100%;
+  left: 0;
+  width: 0%;
   height: 100%;
   background: #45aaf2;
 }
 
 /* 文件大小显示 */
-.download_list .download .size{
+.download_list .download .name{
   position: absolute;
   top: 50%;
   left: 20px;
@@ -147,10 +146,11 @@ html,body{
 }
 
 /* 文件名 */
-.download_list .download .name{
+.download_list .download .size{
   position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%,-50%);
   color: #000;
   font-weight: bold;
 }
@@ -203,6 +203,7 @@ html,body{
   width: 100%;
   height: 100%;
   background: white;
+  z-index: 10;
 }
 
 .install_curl,
