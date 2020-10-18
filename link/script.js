@@ -29,7 +29,7 @@ $(".download_box .download_btn button").click(function(event) {
     $.ajax({  //不要返回值 告诉服务器离线下载
       url: serveraddr+"download.php",
       data: {type: 'curl',url:input.val()},
-      timeout: 20,
+      timeout: 500,
     })
 
     $.ajax({
@@ -39,64 +39,8 @@ $(".download_box .download_btn button").click(function(event) {
       success:function(e){
         if(code(e)){
           if(e.value!==false){
-            let d = $(".copyright .download").clone(true);
-            d.css("display","");
-            //d.find('.name').text(e.value[i].filename);
-            //d.find('.size').text(renderSize(e.value[i].filesize));
-            //d.data('data', e.value[i]);
-            d.data('type', "downinfo");
-            // d.find('.open_btn').click(function(event) {
-            //   /* Act on the event */
-            //   //alert($(this).parent().parent().data("data").file)
-            //   window.open($(this).parent().parent().data("data").file)
-            // });
-            // d.find('.down_btn').click(function(event) {
-            //   /* Act on the event */
-            //   let eve = $(this).parent().parent().data("data");
-            //   window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
-            // });
-            // d.find('.delete_btn').click(function(event) {
-            //   /* Act on the event */
-            //   let eve = $(this).parent().parent().data("data");
-            //   $.ajax({
-            //     url:serveraddr+"download.php",
-            //     data:{type:"delfile",file:eve.filename},
-            //     success:function(e){
-            //       if(code(e)){
-            //         if(e.value){
-            //           d.hide();
-            //         }else{
-            //           alert("删除失败");
-            //         }
-            //       }
-            //     }
-            //   })
-            //
-            // });
-            //d.prependTo($(".download_list"));
-            d.appendTo($(".download_list"));
-
+            addfileing({value:e.value,json:e.json});
             input.val('');
-
-            func.push([d,function(_e,i){
-              if(_e.is(':hidden')){
-                func[i]=[];
-              }else{
-                $.ajax({//请求下载进度
-                  url: serveraddr+e.value,
-                  dataType: 'json',
-                  success:function(e){
-                    if(!e.fail){
-                      _e.find('.name').text(e.filename);
-                      _e.find('.size').text(renderSize(e.maxsize));
-                      _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize)+"%")
-                    }
-                  }
-                })
-              }
-
-            }]);
-
           }else{
             alert("调试:服务器没有发现下载信息文件");
           }
@@ -186,47 +130,130 @@ function getfilelist(){
   $.ajax({url:serveraddr+"download.php",data:{type:"getfilelist"},success:function(e){
       if(code(e)){
         //alert(JSON.stringify(e.value));
-        for(let i in e.value){
-          //e.value[i].filename
-          let d = $(".copyright .download").clone(true);
-          d.css("display","");
-          d.find('.name').text(e.value[i].filename);
-          d.find('.size').text(renderSize(e.value[i].filesize));
-          d.data('data', e.value[i]);
-          d.data('type', "file");
-          d.find('.open_btn').click(function(event) {
-            /* Act on the event */
-            //alert($(this).parent().parent().data("data").file)
-            window.open($(this).parent().parent().data("data").file)
-          });
-          d.find('.down_btn').click(function(event) {
-            /* Act on the event */
-            let eve = $(this).parent().parent().data("data");
-            window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
-          });
-          d.find('.delete_btn').click(function(event) {
-            /* Act on the event */
-            let eve = $(this).parent().parent().data("data");
-            $.ajax({
-              url:serveraddr+"download.php",
-              data:{type:"delfile",file:eve.filename},
-              success:function(e){
-                if(code(e)){
-                  if(e.value){
-                    d.hide();
-                  }else{
-                    alert("删除失败");
-                  }
-                }
-              }
-            })
 
-          });
-          //d.prependTo($(".download_list"));
-          d.appendTo($(".download_list"));
+        for(let i in e.value.downok){
+          //e.value[i].filename
+          addfileok(e.value.downok[i]);
+        }
+        for(let i in e.value.downing){
+          addfileing(e.value.downing[i]);
         }
       }
   }});
+}
+
+function addfileok(fevent){
+  let d = $(".copyright .download").clone(true);
+  d.css("display","");
+  d.find('.name').text(fevent.filename);
+  d.find('.size').text(renderSize(fevent.filesize));
+  d.data('data', fevent);
+  d.data('type', "file");
+  d.find('.open_btn').click(function(event) {
+    /* Act on the event */
+    //alert($(this).parent().parent().data("data").file)
+    window.open($(this).parent().parent().data("data").file)
+  });
+  d.find('.down_btn').click(function(event) {
+    /* Act on the event */
+    let eve = $(this).parent().parent().data("data");
+    window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
+  });
+  d.find('.delete_btn').click(function(event) {
+    /* Act on the event */
+    let eve = $(this).parent().parent().data("data");
+    $.ajax({
+      url:serveraddr+"download.php",
+      data:{type:"delfile",file:eve.filename},
+      success:function(e){
+        if(code(e)){
+          if(e.value){
+            d.hide();
+          }else{
+            alert("删除失败");
+          }
+        }
+      }
+    })
+
+  });
+  //d.prependTo($(".download_list"));
+  d.appendTo($(".download_list"));
+}
+
+function addfileing(fevent){
+  //将模板节点复制出来处理
+  let d = $(".copyright .download").clone(true);
+  d.css("display","");
+  d.data('data', fevent.value);
+  d.data('type', "downinfo");
+  d.find('.open_btn').click(function(event) {
+    /* Act on the event */
+    if(d.data("type") == "file"){
+      let eve = $(this).parent().parent().data("data");
+      window.open($(this).parent().parent().data("data").file)
+    }
+  });
+  d.find('.down_btn').click(function(event) {
+    /* Act on the event */
+    if(d.data("type") == "file"){
+      let eve = $(this).parent().parent().data("data");
+      window.open(serveraddr+"download.php?type=download&file="+eve.filename);
+    }
+  });
+  d.find('.delete_btn').click(function(event) {
+    /* Act on the event */
+    let eve = $(this).parent().parent().data("data");
+    if(d.data("type") == "file"){
+      $.ajax({
+        url:serveraddr+"download.php",
+        data:{type:"delfile",file:eve.filename},
+        success:function(del_data){
+          if(code(del_data)){
+            if(del_data.value){
+              d.hide();
+            }else{
+              alert("删除失败");
+            }
+          }
+        }
+      })
+    }
+  });
+  //d.prependTo($(".download_list"));
+  d.appendTo($(".download_list"));
+
+  func.push([d,function(_e,i){
+    if(_e.length <= 0 && _e.is(':hidden')){
+      func[i]=[];
+    }else{
+      $.ajax({//请求下载进度
+        url: serveraddr+fevent.json,
+        dataType: 'json',
+        success:function(e){
+          if(!e.fail){
+            //alert(ok);
+            _e.find('.name').text(e.filename);
+            _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%")
+            if((e.downsize == e.maxsize) && e.maxsize != 0){
+              //下载完成
+              func[i]=[]; //不再发出下载进度请求
+              _e.data('type', "file");
+              _e.find('.size').text("(完成)"+ renderSize(e.maxsize));
+            }else{
+              //正在下载的情况下
+              _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+")"+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
+            }
+
+          }else{
+            func[i]=[]; //不再发出下载进度请求
+            _e.find('.size').text("Download Error");
+          }
+        }
+      })
+    }
+
+  }]);
 }
 
 //计算大小 自动配置单位
