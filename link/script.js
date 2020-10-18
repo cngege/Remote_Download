@@ -29,7 +29,7 @@ $(".download_box .download_btn button").click(function(event) {
     $.ajax({  //不要返回值 告诉服务器离线下载
       url: serveraddr+"download.php",
       data: {type: 'curl',url:input.val()},
-      timeout: 500,
+      timeout: 50,
     })
 
     $.ajax({
