@@ -122,6 +122,16 @@ $(".install .login button").click(function(event) {
   })
 });
 
+// 设置按钮
+$("#setup_btn").click(function(event) {
+  /* Act on the event */
+  alert("建设中……");
+});
+
+
+
+
+
 
 
 
@@ -132,7 +142,6 @@ function getfilelist(){
         //alert(JSON.stringify(e.value));
 
         for(let i in e.value.downok){
-          //e.value[i].filename
           addfileok(e.value.downok[i]);
         }
         for(let i in e.value.downing){
@@ -141,6 +150,8 @@ function getfilelist(){
       }
   }});
 }
+
+
 
 function addfileok(fevent){
   let d = $(".copyright .download").clone(true);
@@ -168,7 +179,7 @@ function addfileok(fevent){
       success:function(e){
         if(code(e)){
           if(e.value){
-            d.hide();
+            d.hide("normal");
           }else{
             alert("删除失败");
           }
@@ -211,7 +222,7 @@ function addfileing(fevent){
         success:function(del_data){
           if(code(del_data)){
             if(del_data.value){
-              d.hide();
+              d.hide("normal");
             }else{
               alert("删除失败");
             }
@@ -224,7 +235,7 @@ function addfileing(fevent){
   d.appendTo($(".download_list"));
 
   func.push([d,function(_e,i){
-    if(_e.length <= 0 && _e.is(':hidden')){
+    if(_e.length <= 0 || _e.is(':hidden')){
       func[i]=[];
     }else{
       $.ajax({//请求下载进度
@@ -234,7 +245,14 @@ function addfileing(fevent){
           if(!e.fail){
             //alert(ok);
             _e.find('.name').text(e.filename);
-            _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%")
+            if(e.maxsize!=0){
+              _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%");
+            }
+            if(!e.downing){
+              //下载完成
+              _e.data('type', "file");
+              _e.find('.size').text("(结束)"+ renderSize(e.maxsize));
+            }
             if((e.downsize == e.maxsize) && e.maxsize != 0){
               //下载完成
               func[i]=[]; //不再发出下载进度请求
@@ -242,7 +260,9 @@ function addfileing(fevent){
               _e.find('.size').text("(完成)"+ renderSize(e.maxsize));
             }else{
               //正在下载的情况下
-              _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+")"+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
+              if(e.maxsize!=0){
+                _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+")"+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
+              }
             }
 
           }else{
@@ -295,7 +315,9 @@ function code(event){
       return false;
     break;
     case 4://没有登录[弹窗提示 + 调整登录窗口]
-      $(".install,.install .login").css("display","inline");
+      if($(".install").css('display')=="none"||$(".install .login").css('display')=="none"){
+        $(".install,.install .login").css("display","inline");
+      }
       return false;
     break;
     default:

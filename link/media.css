@@ -1,23 +1,50 @@
 .box_body{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-
-  width: 90%;
-  height: 90%;
-  border-radius: 30px;
-  box-shadow: 0 0 15px rgba(0,0,0,.3);
-
+  top: 0;
+  left: 0;
+  transform: translate(0,0);
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 0;
+  min-height: 300px;
 }
 
 .install{
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  width: 400px;
-  min-width: 400px;
-  height: 300px;
-  box-shadow: 0 0 10px rgba(0,0,0,.5);
-  border-radius: 10px;
+  top: 0;
+  left: 0;
+  transform: translate(0,0);
+  width: 100%;
+  height: 100%;
+}
+
+/* 下载div外层 */
+.download_list .download{
+  height: 80px;
+  margin-top: 10px;
+}
+
+/* 文件名 */
+.download_list .download .name{
+  top: 30%;
+  left: 20px;
+  transform: translateY(-50%);
+}
+
+/* 文件大小显示 */
+.download_list .download .size{
+  top: 70%;
+  left: 20px;
+  transform: translateY(-70%);
+}
+
+.copyright{
+  white-space: nowrap;  /*只允许文字一行显示*/
+}
+
+/* 设置按钮 */
+.setup .setup_btn{
+  right: 30px;
+  bottom: 40px;
+  width: 50px;
+  height: 50px;
 }
