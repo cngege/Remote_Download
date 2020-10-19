@@ -25,29 +25,37 @@ $(function(){
 $(".download_box .download_btn button").click(function(event) {
   /* Act on the event */
   let input = $(".download_input input");
+  let clearid = null;
   if(input.val()!==''){
-    $.ajax({  //不要返回值 告诉服务器离线下载
+    $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
       data: {type: 'curl',url:input.val()},
-      timeout: 50,
-    })
-
-    $.ajax({
-      url: serveraddr+"download.php",
-      dataType: 'json',
-      data: {type: 'getdowninfo_one',url:input.val()},
-      success:function(e){
-        if(code(e)){
-          if(e.value!==false){
-            addfileing({value:e.value,json:e.json});
-            input.val('');
-          }else{
-            alert("调试:服务器没有发现下载信息文件");
-          }
+      timeout: 500,
+      success:function(ve){
+        if(code(ve)){
+          //如果服务端抛出了异常
+          if(ve.code == 3 && clearid!=null){clearTimeout(clearid)}
         }
       }
     })
 
+    clearid = setTimeout(function(){
+      $.ajax({
+        url: serveraddr+"download.php",
+        dataType: 'json',
+        data: {type: 'getdowninfo_one',url:input.val()},
+        success:function(e){
+          if(code(e)){
+            if(e.value!==false){
+              addfileing({value:e.value,json:e.json});
+              input.val('');
+            }else{
+              alert("调试:服务器没有发现下载信息文件:"+e.debug);
+            }
+          }
+        }
+      })
+    },500);
 
   }
 
@@ -231,8 +239,8 @@ function addfileing(fevent){
       })
     }
   });
-  //d.prependTo($(".download_list"));
-  d.appendTo($(".download_list"));
+  d.prependTo($(".download_list"));
+  //d.appendTo($(".download_list"));
 
   func.push([d,function(_e,i){
     if(_e.length <= 0 || _e.is(':hidden')){
