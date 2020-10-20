@@ -199,3 +199,37 @@ function getRange($file_size){
     } 
     return null; 
 } 
+
+//文本过长 则取后40位
+function basename2($_link){
+    $web = geturlname($_link);
+    if($web){
+        return $web; 
+    }else{
+        $name = basename($_link);
+        if(strlen($name)>40){
+            $name = substr( $name, -40 );
+        }
+        return trim($name,'/&= ');
+    }
+}
+
+function geturlname($_url){
+    $headers = get_headers($_url,true);
+    $load = $headers['Location'];
+    if(!empty($load)){//如果有302跳转
+        return geturlname($load);
+    }else{
+        $reheader = $headers['Content-Disposition'];
+        if($reheader){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
+            $reDispo = '/.*filename=(([\'\"]).*?\2|[^;\n]*)/m';
+            if (preg_match($reDispo, $reheader, $mDispo))
+            {
+                $filename = trim($mDispo[1],' ";'); //移除字符串中所含有的这些字符
+                return $filename;
+            }
+        }
+        return false;
+    }
+
+}

@@ -17,7 +17,7 @@ class curl{
             ignore_user_abort(true); // 后台运行
             set_time_limit(3600*24); // 取消脚本运行时间的超时上限
             
-            $this->downfilename = basename($this->url);
+            $this->downfilename = basename2($this->url);
             $this->urlsize = filesize($this->url);
             $_ = "";
             while(file_exists(SAVEPATH.$_.$this->downfilename)){
@@ -34,8 +34,9 @@ class curl{
             //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
             curl_setopt($ch, CURLOPT_NOPROGRESS, false);
             curl_setopt ($ch, CURLOPT_REFERER, $this->url);
-            curl_setopt($c, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
             curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, array($this, "progress"));
+            curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1); // 302 跳转
             curl_exec($ch);
             if (curl_errno($ch)) {//如果发生了错误
                 $this->write($this->url,$this->downfilename,$this->urlsize,null,true,false);

@@ -1,6 +1,6 @@
 <?php
 function islogin(){
-    return true;
+    //return true;
     if(PASSWD == $_COOKIE['key']){
         return true;
     }

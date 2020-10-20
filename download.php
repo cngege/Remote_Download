@@ -8,7 +8,6 @@ if(file_exists("user/setup.php")){
 }
 require_once("php/login.php");
 require_once("php/curl.php");
-
 header('Content-type: application/json; charset=utf-8');
 
 $type = @$_GET['type'];
@@ -111,7 +110,7 @@ if($type == 'login'){
             $i = $i+1;
         }while(empty($_json)&&$i<5);
         
-        if(!empty($_json->filename) || $_json->filename == basename($_GET['url'])){
+        if(!empty($_json->filename) || $_json->filename == basename2($_GET['url'])){
             if(file_exists(SAVEPATH.$_json->filename)){
                 exit(json(array("code"=>1,"value"=>$_json,"json"=>$lock)));
             }else{
