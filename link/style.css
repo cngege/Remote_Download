@@ -287,21 +287,34 @@ html,body{
 
 /* 设置按钮 及页面 */
 .setup{
-  /* position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%; */
-}
-
-.setup .setup_btn{
   position: absolute;
   right: 40px;
   bottom: 50px;
   width: 50px;
   height: 50px;
+  /* background: red; */
+  transition: all .5s;
+}
+
+.setup:hover{
+  height: 130px;
+}
+
+.setup .setup_btn{
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
   transition: all .5s;
+}
+
+/* 单个的齿轮图标的特有样式 */
+.setup .setup_btn.setup_icon{
+  z-index: 5;
+  width: 100%;
+  height: 50px;
 }
 
 .setup .setup_btn svg{
@@ -309,6 +322,17 @@ html,body{
   height: 100%;
 }
 
-.setup .setup_btn:hover{
+.setup:hover .setup_btn.setup_icon{
   transform: rotate(360deg);
+}
+
+
+/* 退出登录图标 */
+.setup .setup_btn.setup_logout_icon{
+  opacity: 0;
+}
+
+.setup:hover .setup_btn.setup_logout_icon{
+  opacity: 1;
+  bottom: 70px;
 }

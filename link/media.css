@@ -42,9 +42,12 @@
 }
 
 /* 设置按钮 */
-.setup .setup_btn{
+.setup{
   right: 30px;
   bottom: 40px;
   width: 50px;
+}
+
+.setup .setup_btn{
   height: 50px;
 }

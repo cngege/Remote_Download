@@ -30,35 +30,19 @@ $(".download_box .download_btn button").click(function(event) {
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
       data: {type: 'curl',url:input.val()},
-      timeout: 500,
+      //timeout: 500,
       success:function(ve){
         if(code(ve)){
-          //如果服务端抛出了异常
-          if(ve.code == 3 && clearid!=null){clearTimeout(clearid)}
+          if(ve.value){
+            //{value:json数据,json:JSON路径}
+            addfileing({json:ve.json});
+            input.val('');
+            $.jqAlert({content:"已建立下载任务",type:"success"});
+          }
         }
       }
     })
-
-    clearid = setTimeout(function(){
-      $.ajax({
-        url: serveraddr+"download.php",
-        dataType: 'json',
-        data: {type: 'getdowninfo_one',url:input.val()},
-        success:function(e){
-          if(code(e)){
-            if(e.value!==false){
-              addfileing({value:e.value,json:e.json});
-              input.val('');
-            }else{
-              alert("调试:服务器没有发现下载信息文件:"+e.debug);
-            }
-          }
-        }
-      })
-    },500);
-
   }
-
 });
 
 
@@ -82,7 +66,7 @@ $(".install .setpath button").click(function(event) {
           $(".install .setpath").css("display","none");
           $(".install .setpasswd").css("display","inline");
         }else{
-          alert(e.msg);
+          $.jqAlert({content:e.msg,type:"error"});
         }
       }
     }
@@ -102,6 +86,8 @@ $(".install .setpasswd button").click(function(event) {
           $(".install .setpasswd").css("display","none");
           $(".install").css("display","none");
           location.reload();
+        }else{
+          $.jqAlert({content:"设置失败",type:"error"});
         }
       }
     }
@@ -122,8 +108,9 @@ $(".install .login button").click(function(event) {
           $(".install .setpasswd").css("display","none");
           $(".install").css("display","none");
           getfilelist();
+          $.jqAlert({content:"登录成功",type:"success"});
         }else{
-          alert("密码不正确");
+          $.jqAlert({content:"密码不正确",type:"warning"});
         }
       }
     }
@@ -133,9 +120,24 @@ $(".install .login button").click(function(event) {
 // 设置按钮
 $("#setup_btn").click(function(event) {
   /* Act on the event */
-  alert("建设中……");
+  //alert("建设中……");
 });
-
+// 退出登录按钮
+$("#setup_logout").click(function(event) {
+  /* Act on the event */
+  $.ajax({
+    url: serveraddr+"download.php",
+    dataType: 'json',
+    data: {type: "logout"},
+    success:function(e){
+      if(code(e)){
+        if(e.value){
+          location.reload();
+        }
+      }
+    }
+  })
+});
 
 
 
@@ -165,7 +167,17 @@ function addfileok(fevent){
   let d = $(".copyright .download").clone(true);
   d.css("display","");
   d.find('.name').text(fevent.filename);
-  d.find('.size').text(renderSize(fevent.filesize));
+  //如果服务器指示这个下载任务是以报错而结束的话
+  if(fevent.downinfo && fevent.downinfo.fail){
+    d.find('.size').text("Download Error");
+    d.find('.size').css("color","red");
+    d.css("background","#dcdde1");
+    if(fevent.downinfo.downsize&&fevent.downinfo.maxsize){
+      d.find(".downloadbar").css("width",Math.round(fevent.downinfo.downsize/fevent.downinfo.maxsize * 100)+"%");
+    }
+  }else{
+    d.find('.size').text(renderSize(fevent.filesize));
+  }
   d.data('data', fevent);
   d.data('type', "file");
   d.find('.open_btn').click(function(event) {
@@ -189,7 +201,7 @@ function addfileok(fevent){
           if(e.value){
             d.hide("normal");
           }else{
-            alert("删除失败");
+            $.jqAlert({content:"删除失败",type:"warning"});
           }
         }
       }
@@ -204,24 +216,24 @@ function addfileing(fevent){
   //将模板节点复制出来处理
   let d = $(".copyright .download").clone(true);
   d.css("display","");
-  d.data('data', fevent.value);
+  if(fevent.value){d.data('data', fevent.value)}  //只有当value存在的时候 才添加值到data
   d.data('type', "downinfo");
   d.find('.open_btn').click(function(event) {
-    /* Act on the event */
+    /* 浏览器打开-按钮点击事件 */
     if(d.data("type") == "file"){
       let eve = $(this).parent().parent().data("data");
-      window.open($(this).parent().parent().data("data").file)
+      window.open(eve.file)
     }
   });
   d.find('.down_btn').click(function(event) {
-    /* Act on the event */
+    /* 下载到本地-按钮点击事件 */
     if(d.data("type") == "file"){
       let eve = $(this).parent().parent().data("data");
       window.open(serveraddr+"download.php?type=download&file="+eve.filename);
     }
   });
   d.find('.delete_btn').click(function(event) {
-    /* Act on the event */
+    /* 删除远端文件-按钮点击事件 */
     let eve = $(this).parent().parent().data("data");
     if(d.data("type") == "file"){
       $.ajax({
@@ -232,13 +244,24 @@ function addfileing(fevent){
             if(del_data.value){
               d.hide("normal");
             }else{
-              alert("删除失败");
+              $.jqAlert({content:"删除失败",type:"warning"});
             }
+          }
+        }
+      })
+    }else if(d.data("type") == "downinfo"){   //结束下载任务
+      $.ajax({
+        url:serveraddr+"download.php",
+        data:{type:"deldowntask",task:d.data("data").filename},
+        success:function(del_data){
+          if(code(del_data)){
+            d.hide("normal");
           }
         }
       })
     }
   });
+  //添加到元素内开头
   d.prependTo($(".download_list"));
   //d.appendTo($(".download_list"));
 
@@ -251,7 +274,7 @@ function addfileing(fevent){
         dataType: 'json',
         success:function(e){
           if(!e.fail){
-            //alert(ok);
+            if(!_e.data("data")){_e.data("data",e)}
             _e.find('.name').text(e.filename);
             if(e.maxsize!=0){
               _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%");
@@ -275,12 +298,18 @@ function addfileing(fevent){
 
           }else{
             func[i]=[]; //不再发出下载进度请求
+            _e.find('.name').text(e.filename);
             _e.find('.size').text("Download Error");
+          }
+        },
+        statusCode:{
+          404:function(){
+            //_e.find('.name').text(e.filename);
+            _e.find('.size').text("404 FILE NOT FOUND");
           }
         }
       })
     }
-
   }]);
 }
 
@@ -292,7 +321,7 @@ function renderSize(value){
     var unitArr = new Array("Bytes","KB","MB","GB","TB","PB","EB","ZB","YB");
     var index=0,
         srcsize = parseFloat(value);
- index=Math.floor(Math.log(srcsize)/Math.log(1024));
+        index=Math.floor(Math.log(srcsize)/Math.log(1024));
     var size =srcsize/Math.pow(1024,index);
     //  保留的小数位数
     size=size.toFixed(2);
@@ -303,6 +332,7 @@ function code(event){
   num = event.code;
   switch (num) {
     case 0://没有安装[短弹窗警告 弹出安装窗口]
+      $.jqAlert({content:"服务端没有进行配置,现在开始",type:"warning"});
       $(".install,.install .install_curl").css("display","inline");
       let _install_curl = $.ajax({url:serveraddr+"download.php",data:{type:"install",circuit:"hascurl"},async:false}).responseJSON;
       if(code(_install_curl)){
@@ -315,21 +345,23 @@ function code(event){
       return true;
     break;
     case 2://URL出错[短弹窗提示]
-      alert(event.msg);
+      $.jqAlert({content:event.msg,type:"error"});
       return false;//阻止后面的操作
     break;
     case 3://服务端发生了错误[长弹窗警告]
-      alert(event.msg);
+      $.jqAlert({content:event.msg,type:"error"});
       return false;
     break;
     case 4://没有登录[弹窗提示 + 调整登录窗口]
+      $.jqAlert({content:"没有登录或密码过期,请登录",type:"warning"});
       if($(".install").css('display')=="none"||$(".install .login").css('display')=="none"){
         $(".install,.install .login").css("display","inline");
       }
       return false;
     break;
     default:
-    return false;
+      $.jqAlert({content:"返回了未知的状态码："+num,type:"warning"});
+      return false;
 
   }
 }

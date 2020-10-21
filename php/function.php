@@ -79,13 +79,14 @@ function getdirfile(){
     
     $arrok = array();
     $arrno = array();
+    $_json = array();
     foreach($temp as $_v){
         if(!is_dir($_v)){
             //取文件所在目录：dirname($v)
             $v = SAVEPATH.$_v;
             if(file_exists("user/".$_v.".json")){
                 $_json = json_decode(file_get_contents("user/".$_v.".json"));
-                  if($_json->downing){
+                if($_json->downing){
                     array_push($arrno,array(
                         "value"=>$_json,
                         "json"=>"user/".$_v.".json"
@@ -102,7 +103,8 @@ function getdirfile(){
                     filectime($v),  //创建时间
                     filemtime($v),  //修改时间
                     fileatime($v)   //访问时间
-                    )
+                    ),
+                "downinfo"=> $_json
                 )
             );
         }
@@ -207,10 +209,14 @@ function basename2($_link){
         return $web; 
     }else{
         $name = basename($_link);
+        $sp = strrpos($name,"?");
+        if($sp > 0){
+            $name = substr($name,0,$sp);
+        }
         if(strlen($name)>40){
             $name = substr( $name, -40 );
         }
-        return trim($name,'/&= ');
+        return str_replace('&',"",$name);
     }
 }
 

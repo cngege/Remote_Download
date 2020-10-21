@@ -17,15 +17,31 @@ class curl{
             ignore_user_abort(true); // 后台运行
             set_time_limit(3600*24); // 取消脚本运行时间的超时上限
             
+            ob_end_clean();
+            header("Connection: close");
+            header("HTTP/1.1 200 OK");
+            header('Content-type: application/json; charset=utf-8');
+            ob_start();
+            
             $this->downfilename = basename2($this->url);
             $this->urlsize = filesize($this->url);
             $_ = "";
             while(file_exists(SAVEPATH.$_.$this->downfilename)){
                 $_.="_";
             }
-            $this->downfilename = $_.$this->downfilename;
+            //URL 解码 + "_"前缀
+            $this->downfilename = urldecode($_.$this->downfilename);
             
-            file_put_contents("user/install.lock","user/".$this->downfilename.".json");
+            //file_put_contents("user/install.lock","user/".$this->downfilename.".json");
+            
+            echo json(array("code"=>1,"value"=>true,"json"=>"user/".$this->downfilename.".json"));
+            header("Content-Length: ${ob_get_length()}");
+            ob_end_flush();
+            flush();
+            if (function_exists("fastcgi_finish_request")) {
+                fastcgi_finish_request(); /* 响应完成, 关闭连接 */
+            } 
+            
             $this->write($this->url,$this->downfilename,null,null,false,true);
             
             $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
@@ -60,10 +76,15 @@ class curl{
     }
     
     public function progress($fch, $countDownloadSize, $currentDownloadSize, $countUploadSize, $currentUploadSize){
-        //url filename maxsize size
-        //if($countDownloadSize!=0){
-            $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
-        //}
+        if(json_decode(file_get_contents("user/".$this->downfilename.".json"))->close){
+            curl_close($fch);
+            fclose($this->fp);
+            @unlink("user/".$this->downfilename.".json");
+            @unlink(SAVEPATH.$this->downfilename);
+            return;
+        }
+        $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
+        
     }
     
     public function write($_url,$_filename,$_max,$_size,$_fail=false,$_downing=true){
@@ -74,6 +95,7 @@ class curl{
             "maxsize"=>$_max,
             "downsize"=>$_size,
             "fail"=>$_fail,
+            "close"=>false,                 //不写只读 如果为true 则中断下载
             "downing"=>$_downing
         );
         file_put_contents("user/".$_filename.".json",json_encode($wdata));

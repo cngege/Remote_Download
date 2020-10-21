@@ -69,6 +69,9 @@ if($type == 'login'){
     }else{
         exit(json(array("code"=>2)));               //URL出错
     }
+}else if($type == 'logout'){                        //退出登录
+    logout();
+    exit(json(array("code"=>1,"value"=>true)));
 }else if($type == "getfilelist"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录    
     exit(json(array("code"=>1,"value"=>getdirfile())));
@@ -118,6 +121,22 @@ if($type == 'login'){
             }
         }
         exit(json(array("code"=>1,"value"=>false,"debug"=>$_json)));
+    }else{
+        exit(json(array("code"=>2,"msg"=>"缺少必要参数:url")));
+    }
+}else if($type == "deldowntask"){//删除下载任务
+    if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    if(isset($_GET['task'])){
+        if(file_exists("user/".$_GET['task'].".json")){
+            $_json = json_decode(file_get_contents("user/".$_GET['task'].".json"));
+            $_json->close=true;
+            file_put_contents("user/".$_GET['task'].".json",json_encode($_json));
+            exit(json(array("code"=>1)));
+        }else{
+            exit(json(array("code"=>3,"msg"=>"无法向后台进程下达命令")));
+        }
+    }else{
+        exit(json(array("code"=>2,"msg"=>"缺少必要参数:task")));
     }
 }
 
