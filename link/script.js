@@ -188,7 +188,8 @@ function addfileok(fevent){
   d.find('.down_btn').click(function(event) {
     /* Act on the event */
     let eve = $(this).parent().parent().data("data");
-    window.open(serveraddr+"download.php?type=download&file="+$(this).parent().parent().data("data").filename);
+    $.jqAlert({content:"准备下载……",type:"info"});
+    $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
   });
   d.find('.delete_btn').click(function(event) {
     /* Act on the event */
@@ -229,7 +230,8 @@ function addfileing(fevent){
     /* 下载到本地-按钮点击事件 */
     if(d.data("type") == "file"){
       let eve = $(this).parent().parent().data("data");
-      window.open(serveraddr+"download.php?type=download&file="+eve.filename);
+      $.jqAlert({content:"准备下载……",type:"info"});
+      $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
     }
   });
   d.find('.delete_btn').click(function(event) {

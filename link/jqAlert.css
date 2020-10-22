@@ -20,8 +20,8 @@
     -webkit-animation-iteration-count: 1; /*动画次数*/
     -webkit-animation-delay: 0s; /*延迟时间*/
 }
-@media only screen and (max-width: 800px) {
-  .my_alertBox{
+@media only screen and (max-width: 768px) {
+  .my_alert-wrapper .my_alertBox{
     width: 300px;
     left: calc(50% - 150px);
   }

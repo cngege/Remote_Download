@@ -7,6 +7,16 @@ html,body{
   font-family: sans-serif;
 }
 
+.downiframe{
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  overflow: none;
+  box-shadow: none;
+  z-index: -1;
+}
+
 .box_body{
   position: absolute;
   top: 50%;
