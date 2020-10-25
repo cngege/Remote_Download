@@ -183,7 +183,9 @@ function addfileok(fevent){
   d.find('.open_btn').click(function(event) {
     /* Act on the event */
     //alert($(this).parent().parent().data("data").file)
-    window.open($(this).parent().parent().data("data").file)
+    window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+    //alert(JSON.stringify(d.data("data")));
+
   });
   d.find('.down_btn').click(function(event) {
     /* Act on the event */
@@ -222,8 +224,10 @@ function addfileing(fevent){
   d.find('.open_btn').click(function(event) {
     /* 浏览器打开-按钮点击事件 */
     if(d.data("type") == "file"){
-      let eve = $(this).parent().parent().data("data");
-      window.open(eve.file)
+      //let eve = $(this).parent().parent().data("data");
+      //window.open(eve.file)
+      window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+      //alert(JSON.stringify(d.data("data")));
     }
   });
   d.find('.down_btn').click(function(event) {
