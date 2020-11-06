@@ -140,7 +140,11 @@ $("#setup_logout").click(function(event) {
 });
 
 
-
+// 页面内显示图片 控件事件
+$(".imageview .closebtn").click(function(event) {
+  /* Act on the event */
+  $(".imageview").hide();
+});
 
 
 
@@ -183,7 +187,8 @@ function addfileok(fevent){
   d.find('.open_btn').click(function(event) {
     /* Act on the event */
     //alert($(this).parent().parent().data("data").file)
-    window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+    opennew(d.data("data"));
+    //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
     //alert(JSON.stringify(d.data("data")));
 
   });
@@ -226,7 +231,8 @@ function addfileing(fevent){
     if(d.data("type") == "file"){
       //let eve = $(this).parent().parent().data("data");
       //window.open(eve.file)
-      window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+      opennew(d.data("data"));
+      //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
       //alert(JSON.stringify(d.data("data")));
     }
   });
@@ -333,6 +339,25 @@ function renderSize(value){
     size=size.toFixed(2);
     return size+unitArr[index];
 }
+
+function opennew(data){
+  let ext = data.filename.substr(data.filename.lastIndexOf(".")+1);
+
+  let img = ["png","jpg","jpeg","gif"];
+  $.each(img, function(index, el) {
+    if(ext == el){
+      //是图片
+      $(".imageview img").attr("src",serveraddr+"download.php?type=openfile&file="+data.filename);
+      $(".imageview .fileinfo").text(data.filename)
+      $(".imageview").show();
+      return;
+    }
+  });
+
+
+  window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
+}
+
 
 function code(event){
   num = event.code;
