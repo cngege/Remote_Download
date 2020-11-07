@@ -342,7 +342,7 @@ function renderSize(value){
 
 function opennew(data){
   let ext = data.filename.substr(data.filename.lastIndexOf(".")+1);
-
+  let newopen = true;
   let img = ["png","jpg","jpeg","gif"];
   $.each(img, function(index, el) {
     if(ext == el){
@@ -350,12 +350,12 @@ function opennew(data){
       $(".imageview img").attr("src",serveraddr+"download.php?type=openfile&file="+data.filename);
       $(".imageview .fileinfo").text(data.filename)
       $(".imageview").show();
-      return;
+      newopen = false;
     }
   });
 
-
-  window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
+  if(newopen)
+    window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
 }
 
 
