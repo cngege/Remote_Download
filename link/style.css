@@ -367,6 +367,10 @@ html,body{
   z-index: 1001;
 }
 
+.imageview .fileinfo:hover{
+  background-color: rgba(0,0,0,.5);
+}
+
 .imageview img{
   position: absolute;
   top: 50%;
