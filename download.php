@@ -94,6 +94,12 @@ if($type == 'login'){
         chmod(SAVEPATH.$_GET['file'],0777);
         downtoweb($_GET['file']);
     }
+}else if($type == "openfile"){
+    if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    if(isset($_GET['file'])){
+        chmod(SAVEPATH.$_GET['file'],0777);
+        downtoweb($_GET['file'],true);
+    }
 }else if($type == "curl"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){

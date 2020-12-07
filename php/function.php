@@ -122,58 +122,62 @@ function gethost(){
 }
 
 
-// function downtoweb($_name){
-//     $name = SAVEPATH.$_name;
-//     if(file_exists($name)&&is_file($name)){
-//         @set_time_limit(3600*2);
-//         ob_clean();
-//         header('Pragma: public');
-//         header('Last-Modified: '.gmdate('D, d M Y H:i:s') . ' GMT');
-//         header('Cache-Control: no-store, max-age=0, no-cache, must-revalidate'); // HTTP/1.1
-//         header('Cache-Control: post-check=0, pre-check=0', false);
-//         header('Cache-control: private');// 发送 headers 
-//         header('Content-Length: '.filesize($_name)); 
-//         header('Content-Disposition: attachment; filename='.$_name);
-//         header('Content-Type: application/octet-stream; name="'.$_name.'"');
-//         flush();// 刷新内容
-//         $file=fopen($name,"r");
-//         while (!feof($file)){ 
-//           echo fread($file,1024*1024);// 发送当前部分文件给浏览者 
-//           flush();// flush 内容输出到浏览器端
-//         } 
-//         fclose($file);// 关闭文件流
-//     }else{
-//         exit(json(array("code"=>2,"msg"=>"No Found File:".$name)));
-//     }
-// }
-
-function downtoweb($_name){
+function downtoweb($_name,$_isstream = false){
     $name = SAVEPATH.$_name;
+    $info = pathinfo($name);
+    $ext = $info['extension'];
+    $size = filesize($name);
+    
     if(file_exists($name)&&is_file($name)){
         @set_time_limit(3600*2);
+        header_remove();
         ob_clean();
-        $file_size = filesize($name);
-        $ranges = getRange($file_size);
-        $file=fopen($name,"r");
-        header('Pragma: public');
-        header('Content-Type: application/octet-stream; name="'.$_name.'"');
-        header('Content-Disposition: attachment; filename='.$_name);
-        if($reload && $ranges!=null){//断点续传
-            header('HTTP/1.1 206 Partial Content');
-            header('Accept-Ranges:bytes');
-            header(sprintf('content-length:%u',$ranges['end']-$ranges['start']));
-            header(sprintf('content-range:bytes %s-%s/%s', $ranges['start'], $ranges['end'], $file_size));
-            fseek($file, sprintf('%u', $ranges['start']));
-        }else{
-            header('HTTP/1.1 200 OK');
-            header('content-length:'.$file_size);
+        $file=fopen($name,"rb");
+        
+        header("Accept-Ranges: bytes");
+        if(in_array(strtolower($ext),array("mp4","rmvb","flv","amr","ogg","mp3"))){
+            header("Content-type:video/$ext");
+        }else if(in_array(strtolower($ext),array("png","jpg","jpeg","gif","webp"))){      //如果是图片
+            header('Content-type:image/'.$ext);
+            header_remove("Accept-Ranges");
         }
         
+        //如果前端要求Range
+        if(isset($_SERVER['HTTP_RANGE'])){
+            header("HTTP/1.1 206 Partial Content");
+            list($name, $range) = explode("=", $_SERVER['HTTP_RANGE']);
+            list($begin, $end) =explode("-", $range);
+            if($end == 0){
+                $end = $size - 1;
+            }
+            fseek($file, $begin);
+            header("Content-Range: bytes ".$begin."-".$end."/".$size);
+        }else {
+            $begin = 0; $end = $size - 1;
+        }
+        header("Content-Length: " . ($end - $begin + 1));
         
-        flush();// 刷新内容
-        while (!feof($file)){ 
-          echo fread($file,1024*1024);// 发送当前部分文件给浏览者 
+
+        //如果前端要求下载而不是在线打开
+        if(!$_isstream){
+            header("Content-Disposition: attachment; filename=$_name");
+            header('Content-Type: application/octet-stream');
+        }else{
+            header("Content-Disposition: inline; filename=\"$_name\"; filename*=utf-8''$_name");
+        }
+        header("X-OutFileName: $_name");
+
+        
+        //flush();// 刷新内容
+        while (!feof($file)){
+          $p = min(1024*1024, ($end - $begin + 1));
+          $begin = $begin + $p;
+          echo fread($file,$p);// 发送当前部分文件给浏览者
+          ob_flush();
           flush();// flush 内容输出到浏览器端
+          if($p <= 0){
+              break;
+          }
         } 
         fclose($file);// 关闭文件流
     }else{
@@ -182,27 +186,8 @@ function downtoweb($_name){
 }
 
 
-function getRange($file_size){ 
-    if(isset($_SERVER['HTTP_RANGE']) && !empty($_SERVER['HTTP_RANGE'])){ 
-      $range = $_SERVER['HTTP_RANGE']; 
-      $range = preg_replace('/[\s|,].*/', '', $range); 
-      $range = explode('-', substr($range, 6)); 
-      if(count($range)<2){ 
-        $range[1] = $file_size; 
-      } 
-      $range = array_combine(array('start','end'), $range); 
-      if(empty($range['start'])){ 
-        $range['start'] = 0; 
-      } 
-      if(empty($range['end'])){ 
-        $range['end'] = $file_size; 
-      } 
-      return $range; 
-    } 
-    return null; 
-} 
 
-//文本过长 则取后40位
+//文本过长 则取后60位
 function basename2($_link){
     $web = geturlname($_link);
     if($web){
@@ -213,18 +198,19 @@ function basename2($_link){
         if($sp > 0){
             $name = substr($name,0,$sp);
         }
-        if(strlen($name)>40){
-            $name = substr( $name, -40 );
+        if(strlen($name)>100){
+            $name = substr( $name, -60 );
         }
         return str_replace('&',"",$name);
     }
 }
 
-function geturlname($_url){
+function geturlname($_url,$from302=false){
     $headers = get_headers($_url,true);
-    $load = $headers['Location'];
-    if(!empty($load)){//如果有302跳转
-        return geturlname($load);
+    //$load = $headers['Location'];
+    //exit(json(array("code"=>3,"msg"=>$load)));
+    if(!empty($headers['Location'])){//如果有302跳转
+        return geturlname($headers['Location'],true);
     }else{
         $reheader = $headers['Content-Disposition'];
         if($reheader){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
@@ -234,8 +220,22 @@ function geturlname($_url){
                 $filename = trim($mDispo[1],' ";'); //移除字符串中所含有的这些字符
                 return $filename;
             }
+        }else if($from302){                    //看是不是被302跳转过
+            if(is_array($_url)){
+                $_url = $_url[0];
+            }
+            $name = basename($_url);
+            $sp = strrpos($name,"?");
+            if($sp > 0){
+                $name = substr($name,0,$sp);
+            }
+            if(strlen($name)>60){
+                $name = substr( $name, -60 );
+            }
+            return str_replace('&',"",$name);
+        }else{
+            return false;
         }
-        return false;
     }
 
 }

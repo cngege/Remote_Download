@@ -343,7 +343,7 @@ function renderSize(value){
 function opennew(data){
   let ext = data.filename.substr(data.filename.lastIndexOf(".")+1);
   let newopen = true;
-  let img = ["png","jpg","jpeg","gif"];
+  let img = ["png","jpg","jpeg","gif","webp"];
   $.each(img, function(index, el) {
     if(ext == el){
       //是图片
