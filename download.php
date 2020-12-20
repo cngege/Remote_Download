@@ -2,9 +2,11 @@
 ini_set("session.cookie_httponly", 1); 
 header('Access-Control-Allow-Origin:*');
 
+define("config","user");                //定义配置文件所在目录
+
 require_once("php/function.php");
-if(file_exists("user/setup.php")){
-    require_once("user/setup.php");
+if(file_exists(config."/setup.php")){
+    require_once(config."/setup.php");
 }
 require_once("php/login.php");
 require_once("php/curl.php");
@@ -19,8 +21,11 @@ if(!isset($_GET['type'])){              //任何时候的请求都要带上type�
 if(!$isins){                            //如果没有安装
     if($type == "install"){             //如果type标记是安装
         if(isset($_GET['circuit'])){
-            if($_GET['circuit'] == "hascurl"){//流程是判断 是否有curl这个php扩展
-                exit(json(array("code"=>1,"value"=>function_exists("curl_init"))));
+            if($_GET['circuit'] == "has_rely"){//流程是判断 是否有curl这个php扩展 改为判断各扩展的安装情况
+                exit(json(array(
+                    "code"=>1,
+                    "value"=>array("curl"=>function_exists("curl_init"),"redis"=>class_exists("Redis"))
+                    )));
             }else if($_GET['circuit'] == "setsavepath"){    //流程是设置下载文件的保存目录
                 if(isset($_GET['path'])){
                     //$path = iconv("UTF-8", "GBK",$_GET['path']);
@@ -44,11 +49,30 @@ if(!$isins){                            //如果没有安装
                 }else{
                     exit(json(array("code"=>2,"msg"=>"请求错误,没有必须的参数")));
                 }
+            }else if($_GET['circuit'] == "setredis"){
+                if(!isset($_GET['address']) || empty($_GET['address']) || !isset($_GET['port']) || empty($_GET['port'])){
+                    exit(json(array("code"=>2,"msg"=>"请求错误,参数皆不能为空")));
+                }else{
+                    $redis = new Redis();
+                    try {
+                        $redis->connect($_GET['address'], $_GET['port']);
+                        if($redis->ping() == "+PONG"){
+                            writesetup("REDIS_IP",$_GET['address']);
+                            writesetup("REDIS_PORT",$_GET['port']);
+                            exit(json(array("code"=>1,"value"=>true)));
+                        }else{
+                            exit(json(array("code"=>3,"msg"=>"连接异常,请检查Redis服务是否启动")));
+                        }
+                    } catch (Exception $e) {
+                        exit(json(array("code"=>1,"value"=>false,"msg"=>$e->getMessage())));
+                    }
+                    
+                }
             }else if($_GET['circuit'] == "setpasswd"){              //创建访问密码
                 if(isset($_POST['key'])){
                     writesetup("PASSWD",md5(md5($_POST['key'])));
-                    if(file_exists("user/setup.php")){
-                        file_put_contents("user/install.lock","install ok");
+                    if(file_exists(config."/setup.php")){
+                        file_put_contents(config."/install.lock","install ok");
                     }
                     exit(json(array("code"=>1,"value"=>true)));
                 }
@@ -75,16 +99,20 @@ if($type == 'login'){
 }else if($type == "getfilelist"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录    
     exit(json(array("code"=>1,"value"=>getdirfile())));
-}else if($type == "getdownloadlist"){               //获取下载列表
+}else if($type == "getdownloadlist"){               //获取下载列表【前端没有】
+    if(!islogin()){exit(json(array("code"=>4)));}
+    
     
 }else if($type == "delfile"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file']) && file_exists(SAVEPATH.$_GET['file'])){
         chmod(SAVEPATH.$_GET['file'],0777);
         @unlink(SAVEPATH.$_GET['file']);
-        //顺便将下载进度文件一起删除
-        if(file_exists("user/".$_GET['file'].".json")){
-            @unlink("user/".$_GET['file'].".json");
+        $redis = linkRedis();
+        //顺便将数据库文件下载信息一起删除
+        $k = md5($_GET['file']);
+        if($redis->srem("task",$k)){
+            $redis->delete($k);
         }
         exit(json(array("code"=>1,"value"=>!file_exists(SAVEPATH.$_GET['file']))));
     }
@@ -111,7 +139,7 @@ if($type == 'login'){
     if(isset($_GET['url'])){
         //$arr = array();
         
-        $lock = file_get_contents("user/install.lock");
+        $lock = file_get_contents(config."/install.lock");
         $i = 0;
         do{
             if($i!=0){sleep(1);}
@@ -123,7 +151,7 @@ if($type == 'login'){
             if(file_exists(SAVEPATH.$_json->filename)){
                 exit(json(array("code"=>1,"value"=>$_json,"json"=>$lock)));
             }else{
-                @unlink("user/".$_json->filename.".json");
+                @unlink(config."/".$_json->filename.".json");
             }
         }
         exit(json(array("code"=>1,"value"=>false,"debug"=>$_json)));
@@ -133,16 +161,21 @@ if($type == 'login'){
 }else if($type == "deldowntask"){//删除下载任务
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['task'])){
-        if(file_exists("user/".$_GET['task'].".json")){
-            $_json = json_decode(file_get_contents("user/".$_GET['task'].".json"));
-            $_json->close=true;
-            file_put_contents("user/".$_GET['task'].".json",json_encode($_json));
-            exit(json(array("code"=>1)));
-        }else{
-            exit(json(array("code"=>3,"msg"=>"无法向后台进程下达命令")));
-        }
+        
+        $redis = linkRedis();
+        $redis->set("curlclose",$_GET['task']);
+        exit(json(array("code"=>1)));
+        
     }else{
         exit(json(array("code"=>2,"msg"=>"缺少必要参数:task")));
+    }
+}else if($type == "getdowning"){    //获取下载进度【通过创建下载任务后返回的key】
+    if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    if(isset($_GET['inquirykey'])){
+        $redis = linkRedis();
+        $_data = $redis->get($_GET['inquirykey']);
+        $redis->close();
+        exit($_data);
     }
 }
 

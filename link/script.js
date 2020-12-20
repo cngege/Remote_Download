@@ -1,11 +1,12 @@
 //服务器地址 调试用 同目录下不填
-let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
-//let serveraddr="";
+//let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
+let serveraddr="";
 let func = [];
 
 $(function(){
   //第一次打开页面的时候就获取一次文件列表
   getfilelist()
+  //下面每一秒钟循环执行公开数组中的方法一般用作获取离线下载进度显示到前端
   setInterval(function(){
     for(i = 0;i<func.length;i++){
       if(typeof func[i] == "object" && typeof func[i][1] == "function"){
@@ -21,10 +22,10 @@ $(function(){
 
 
 
-//URL下载btn:
+//URL下载btn【点击下载按钮的事件】:
 $(".download_box .download_btn button").click(function(event) {
   /* Act on the event */
-  let input = $(".download_input input");
+  let input = $(".download_input input");//[输入框节点]
   let clearid = null;
   if(input.val()!==''){
     $.ajax({  //告诉服务器离线下载
@@ -35,7 +36,7 @@ $(".download_box .download_btn button").click(function(event) {
         if(code(ve)){
           if(ve.value){
             //{value:json数据,json:JSON路径}
-            addfileing({json:ve.json});
+            addfileing({key:ve.key});
             input.val('');
             $.jqAlert({content:"已建立下载任务",type:"success"});
           }
@@ -46,10 +47,10 @@ $(".download_box .download_btn button").click(function(event) {
 });
 
 
-//安装配置页 判断是否有加载必须插件[按钮]
-$(".install .install_curl button").click(function(event) {
+//安装配置页 判断是否有加载必须插件[按钮] 检查服务器扩展页按钮点击后
+$(".install .install_rely button").click(function(event) {
   /* Act on the event */
-  $(".install .install_curl").css("display","none");
+  $(".install .install_rely").css("display","none");
   $(".install .setpath").css("display","inline");
 });
 
@@ -64,6 +65,28 @@ $(".install .setpath button").click(function(event) {
       if(code(e)){
         if(e.value){
           $(".install .setpath").css("display","none");
+          $(".install .setredis").css("display","inline");
+        }else{
+          $.jqAlert({content:e.msg,type:"error"});
+        }
+      }
+    }
+  })
+});
+
+//安装配置页 设置Redis地址和端口
+$(".install .setredis button").click(function(event) {
+  /* Act on the event */
+  $.jqAlert({content:"正在验证连接……",type:"warning"})
+  $.ajax({
+    url: serveraddr+"download.php",
+    dataType: 'json',
+    data: {type: 'install',circuit:"setredis",address:$(".setredis .inputipbox input").val(),port:$(".setredis .inputportbox input").val()},
+    success:function(e){
+      if(code(e)){
+        if(e.value){
+          $.jqAlert({content:"Redis连接成功,请设置网站密码",type:"success"})
+          $(".install .setredis").css("display","none");
           $(".install .setpasswd").css("display","inline");
         }else{
           $.jqAlert({content:e.msg,type:"error"});
@@ -264,7 +287,7 @@ function addfileing(fevent){
     }else if(d.data("type") == "downinfo"){   //结束下载任务
       $.ajax({
         url:serveraddr+"download.php",
-        data:{type:"deldowntask",task:d.data("data").filename},
+        data:{type:"deldowntask",task:fevent.key},
         success:function(del_data){
           if(code(del_data)){
             d.hide("normal");
@@ -282,7 +305,8 @@ function addfileing(fevent){
       func[i]=[];
     }else{
       $.ajax({//请求下载进度
-        url: serveraddr+fevent.json,
+        url: serveraddr+"download.php",
+        data:{type:"getdowning",inquirykey:fevent.key},
         dataType: 'json',
         success:function(e){
           if(!e.fail){
@@ -364,11 +388,13 @@ function code(event){
   switch (num) {
     case 0://没有安装[短弹窗警告 弹出安装窗口]
       $.jqAlert({content:"服务端没有进行配置,现在开始",type:"warning"});
-      $(".install,.install .install_curl").css("display","inline");
-      let _install_curl = $.ajax({url:serveraddr+"download.php",data:{type:"install",circuit:"hascurl"},async:false}).responseJSON;
-      if(code(_install_curl)){
-        $("#is_ins_curl").text(_install_curl.value?"已安装":"未安装");
-        $(".install .install_curl button").attr("disabled",!_install_curl.value);   //先禁用按钮
+
+      $(".install,.install .install_rely").css("display","inline");
+      let _install_rely = $.ajax({url:serveraddr+"download.php",data:{type:"install",circuit:"has_rely"},async:false}).responseJSON;
+      if(code(_install_rely)){
+        $("#is_ins_curl").text(_install_rely.value.curl?"已安装":"未安装");
+        $("#is_ins_redis").text(_install_rely.value.redis?"已安装":"未安装");
+        $(".install .install_rely button").attr("disabled",!(_install_rely.value.curl&&_install_rely.value.redis));   //先禁用按钮
       }
       return false;
     break;

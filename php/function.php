@@ -10,7 +10,7 @@
 
 
 function isinstall(){
-    if(is_dir('user')&&file_exists('user/install.lock')){
+    if(is_dir(config)&&file_exists(config.'/install.lock')){
         return true;
     }
     return false;
@@ -19,6 +19,11 @@ function isinstall(){
 //array到josn
 function json($arr){
     return json_encode($arr);
+}
+
+//json到array
+function dejson($json){
+    return json_decode($json);
 }
 
 //判断目录是否有读写权限
@@ -63,34 +68,51 @@ return $is_writale;
 
 //写Setup
 function writesetup($key,$value){
-    if(is_dir('user')){
-        if(!file_exists("user/setup.php")){
-            file_put_contents("user/setup.php","<?php\n");
+    if(is_dir(config)){
+        if(!file_exists(config."/setup.php")){
+            file_put_contents(config."/setup.php","<?php\n");
         }
-        file_put_contents("user/setup.php",'define("'.$key.'","'.$value.'");'."\n",FILE_APPEND);
+        file_put_contents(config."/setup.php",'define("'.$key.'","'.$value.'");'."\n",FILE_APPEND);
     }else{
-        mkdir('user',0777,true);
+        mkdir(config,0777,true);
         writesetup($key,$value);
     }
 }
 
 function getdirfile(){
+    $redis = linkRedis();
     $temp=scandir(SAVEPATH);
     
-    $arrok = array();
-    $arrno = array();
+    $arrok = array();               //已下载完成文件集合
+    $arrno = array();               //正在下载中的文件集合
     $_json = array();
+    
+    
     foreach($temp as $_v){
         if(!is_dir($_v)){
             //取文件所在目录：dirname($v)
             $v = SAVEPATH.$_v;
-            if(file_exists("user/".$_v.".json")){
-                $_json = json_decode(file_get_contents("user/".$_v.".json"));
-                if($_json->downing){
+            
+            
+            // if(file_exists(config."/".$_v.".json")){
+            //     $_json = json_decode(file_get_contents(config."/".$_v.".json"));
+            //     if($_json->downing){
+            //         array_push($arrno,array(
+            //             "value"=>$_json,
+            //             "json"=>config."/".$_v.".json"
+            //             ));
+            //         continue;
+            //     }
+            // }
+            
+            $k = md5($_v);
+            if($redis->sismember("task",$k)){  //判断是否是集合中的成员 如果是
+                $val = $redis->get($k);
+                if($val && dejson($val)->downing){
                     array_push($arrno,array(
-                        "value"=>$_json,
-                        "json"=>"user/".$_v.".json"
-                        ));
+                        "value"=>$val,
+                        "key"=>$k
+                    ));
                     continue;
                 }
             }
@@ -111,6 +133,7 @@ function getdirfile(){
     }
     return array("downok"=>$arrok,"downing"=>$arrno);
 }
+
 
 function gethost(){
     $host = $_SERVER['HTTP_HOST'];
@@ -238,4 +261,16 @@ function geturlname($_url,$from302=false){
         }
     }
 
+}
+
+function linkRedis(){
+    $redis = new Redis();
+    try {
+        $redis->connect(REDIS_IP,REDIS_PORT);
+        $redis->setOption(Redis::OPT_PREFIX,'wget_');//设置表前缀
+        return $redis;
+    } catch (Exception $e) {
+        header('Content-type: application/json; charset=utf-8');
+        exit(json(array("code"=>3,"msg"=>"Redis连接出错:".$e)));
+    }
 }

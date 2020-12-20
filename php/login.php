@@ -10,7 +10,7 @@ function islogin(){
 //前端手动输入key登陆
 function login($key){
     if(md5(md5($key)) == PASSWD){
-        setcookie('key',md5(md5($key)),time()+3600*24*7,null,gethost(),null,true);
+        setcookie('key',md5(md5($key)),time()+3600*24*30,null,gethost(),null,true);
         return true;
     }
     return false;

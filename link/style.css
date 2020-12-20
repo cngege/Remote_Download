@@ -229,19 +229,32 @@ html,body{
   z-index: 10;
 }
 
-.install_curl,
+.install_rely,
 .setpath,
+.setredis,
 .setpasswd,
 .login{
   text-align: center;
 }
 
-.install_curl ._curl{
-  background: #487eb0;
-  height: 50px;
+.setpath p,
+.setredis p,
+.setpasswd p,
+.login p
+{
+  font-weight: bold;
 }
 
-.install_curl ._curl span{
+.install_rely ._curl,
+.install_rely ._redis{
+  background: #487eb0;
+  height: 50px;
+  border-top: #000 solid 1px;
+  border-bottom: #000 solid 1px;
+}
+
+.install_rely ._curl span,
+.install_rely ._redis span{
   line-height: 50px;
 }
 
@@ -279,6 +292,34 @@ html,body{
   height: 40px;
   margin: 20px auto;
   border-bottom: 2px solid #9c88ff;
+}
+
+.setredis .redis_ip,
+.setredis .redis_port{
+  text-align: right;
+  width: 10px;
+}
+
+.setredis .inputipbox,          /* 配置页 设置Redis 地址输入框的外box */
+.setredis .inputportbox         /* 配置页 设置Redis 端口输入框的外box */
+{
+  text-align: left;
+  width: 150px;
+  height: 30px;
+  margin: 20px auto;
+  border-bottom: 2px solid #9c88ff;
+}
+
+
+.setredis input                /* 配置页 设置Redis 输入框 */
+{
+  width: 98%;
+  height: 15px;
+  border: none;
+  line-height: 15px;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
 }
 
 .setpath .inputpath input,

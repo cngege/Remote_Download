@@ -4,12 +4,14 @@ class curl{
     public $fp;
     //public $fpjson;
     public $urlsize;
+    public $redis;
+    public $key;
     
     private $downfilename;
     
     public function __construct($_url){
         $this->url = $_url;
-        
+        $this->redis = linkRedis();
     }
     
     public function start(){
@@ -23,18 +25,21 @@ class curl{
             header('Content-type: application/json; charset=utf-8');
             ob_start();
             
-            $this->downfilename = basename2($this->url);
+            $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
             $this->urlsize = filesize($this->url);
             $_ = "";
             while(file_exists(SAVEPATH.$_.$this->downfilename)){
                 $_.="_";
             }
             //URL 解码 + "_"前缀
-            $this->downfilename = urldecode($_.$this->downfilename);
+            $this->downfilename = urldecode($_.$this->downfilename);    //最后确认要保存到本地的文件名
             
-            //file_put_contents("user/install.lock","user/".$this->downfilename.".json");
+            //file_put_contents(config."/install.lock",config."/".$this->downfilename.".json");
+            $this->key = md5($this->downfilename);
             
-            echo json(array("code"=>1,"value"=>true,"json"=>"user/".$this->downfilename.".json"));
+            $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
+            echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
+            
             header("Content-Length: ${ob_get_length()}");
             ob_end_flush();
             flush();
@@ -57,30 +62,37 @@ class curl{
             if (curl_errno($ch)) {//如果发生了错误
                 $this->write($this->url,$this->downfilename,$this->urlsize,null,true,false);
             }else{
-                $_json = json_decode(file_get_contents("user/".$this->downfilename.".json"));
+                $_json = dejson($this->redis->get($this->key));
                 $_json->downing=false;
-                file_put_contents("user/".$this->downfilename.".json",json_encode($_json));
+                $this->redis->set($this->key,json($_json));
             }
             curl_close($ch);
             fclose($this->fp);
+            $this->redis->close();
         }catch(Exception $e){
-            if(file_exists("user/".$this->downfilename.".json")){
-                $_json = json_decode(file_get_contents("user/".$this->downfilename.".json"));
-                $_json->fail=true;
-                $_json->downing=false;
-                file_put_contents("user/".$this->downfilename.".json",json_encode($_json));
-            }
+            $_json = dejson($this->redis->get($this->key));
+            $_json->fail=true;
+            $_json->downing=false;
+            $this->redis->set($this->key,json($_json));
+            
             exit(json(array("code"=>3,"msg"=>"CURL抛出异常:".$e->getMessage())));
         }
 
     }
     
     public function progress($fch, $countDownloadSize, $currentDownloadSize, $countUploadSize, $currentUploadSize){
-        if(json_decode(file_get_contents("user/".$this->downfilename.".json"))->close){
+        
+        //如果要求结束下载的是我自己
+        if($this->redis->get("curlclose")==$this->key){
             curl_close($fch);
             fclose($this->fp);
-            @unlink("user/".$this->downfilename.".json");
+            
+            $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,false);
+            //$this->redis->expire($this->key,1200);//设置失效时间
+            $this->redis->close();
+            
             @unlink(SAVEPATH.$this->downfilename);
+            $this->redis->set("curlclose","");
             return;
         }
         $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
@@ -89,16 +101,17 @@ class curl{
     
     public function write($_url,$_filename,$_max,$_size,$_fail=false,$_downing=true){
         $wdata=array(
-            "url"=>$_url,
+            "url"=>$_url,                   //这个离线文件是下载的哪个URL
             "file"=>SAVEPATH.$this->downfilename,
-            "filename"=>$_filename,
-            "maxsize"=>$_max,
-            "downsize"=>$_size,
-            "fail"=>$_fail,
-            "close"=>false,                 //不写只读 如果为true 则中断下载
-            "downing"=>$_downing
+            "filename"=>$_filename,         //保存到本地的文件名
+            "maxsize"=>$_max,               //离线下载的文件的最大大小
+            "downsize"=>$_size,             //离线下载的文件当前下载的大小
+            "fail"=>$_fail,                 //是否错误 停止下载
+            "close"=>false,                             //不写只读 如果为true 则中断下载
+            "downing"=>$_downing            //是否正在下载中
         );
-        file_put_contents("user/".$_filename.".json",json_encode($wdata));
+        $this->redis->set($this->key,json($wdata));
+        //file_put_contents(config."/".$_filename.".json",json_encode($wdata));
     }
 }
 

@@ -69,11 +69,15 @@
     <!-- 安装配置窗口div -->
     <div class="install" style="display:none">
       <!-- 检查CURL扩展 -->
-      <div class="install_curl" style="display:none">
+      <div class="install_rely" style="display:none">
         <span><p>检查服务器扩展</p></span>
         <div class="_curl">
           <span>curl_init</span>
-          <span id="is_ins_curl">未安装</span>
+          <span id="is_ins_curl" style="color:#00a8ff" >未安装</span>
+        </div>
+        <div class="_redis">
+          <span>redis</span>
+          <span id="is_ins_redis" style="color:#00a8ff" >未安装</span>
         </div>
         <button type="button" name="button">下一步</button>
       </div>
@@ -83,6 +87,21 @@
         <div class="inputpath">
           <input type="text" placeholder="离线文件保存路径[斜杠结尾]">
         </div>
+        <button type="button" name="button">下一步</button>
+      </div>
+      <!-- 设置Redis连结参数 -->
+      <div class="setredis" style="display:none">
+        <span><p>设置Redis地址端口</p></span>
+        <table align="center" border="0">
+          <tr class="redis_ip">
+            <td>设置地址:</td>
+            <td class="inputipbox"><input type="text" placeholder="如ip:127.0.0.1,域名:www.wget.com" value="127.0.0.1"></td>
+          </tr>
+          <tr class="redis_port">
+            <td>设置端口:</td>
+            <td class="inputportbox"><input type="number" min="0" max="65535" placeholder="如:6379" value="6379"></td>
+          </tr>
+        </table>
         <button type="button" name="button">下一步</button>
       </div>
       <!-- 设置管理员密码 -->
