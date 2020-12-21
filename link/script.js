@@ -4,6 +4,10 @@ let serveraddr="";
 let func = [];
 
 $(function(){
+  if(document.URL.indexOf("file://")==0){
+    serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
+    $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
+  }
   //第一次打开页面的时候就获取一次文件列表
   getfilelist()
   //下面每一秒钟循环执行公开数组中的方法一般用作获取离线下载进度显示到前端

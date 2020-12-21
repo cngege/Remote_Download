@@ -7,7 +7,8 @@
       var settings = {
         type: 'info', //info,success,warning,error
         content: '提示内容',
-        autoClose: true
+        autoClose: true,
+        autoTime:3                  //自动关闭时间 默认3s autoClose为true时有效
       };
       var $dom = $ ('.my_alert-wrapper');
       if ($dom.length === 0) {
@@ -27,7 +28,7 @@
       if (settings.autoClose === true) {
         setTimeout (function() {
           box.remove ();
-        }, 3 * 1000);
+        }, settings.autoTime * 1000);
       }
       closeIcon.on ('click', function() {
         box.remove ();

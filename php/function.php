@@ -213,6 +213,7 @@ function downtoweb($_name,$_isstream = false){
 //文本过长 则取后60位
 function basename2($_link){
     $web = geturlname($_link);
+    $web = str_replace("/","_",str_replace("\\","_",$web));
     if($web){
         return $web; 
     }else{
