@@ -32,6 +32,7 @@ $(".download_box .download_btn button").click(function(event) {
   let input = $(".download_input input");//[输入框节点]
   let clearid = null;
   if(input.val()!==''){
+    $.jqAlert({content:"正在发送下载任务请求……",type:"success"});
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
       data: {type: 'curl',url:input.val()},
@@ -197,7 +198,7 @@ function getfilelist(){
 function addfileok(fevent){
   let d = $(".copyright .download").clone(true);
   d.css("display","");
-  d.find('.name').text(fevent.filename);
+  d.find('.name').text(fevent.filename).attr("title",fevent.filename);
   //如果服务器指示这个下载任务是以报错而结束的话
   if(fevent.downinfo && fevent.downinfo.fail){
     d.find('.size').text("Download Error");
@@ -207,7 +208,7 @@ function addfileok(fevent){
       d.find(".downloadbar").css("width",Math.round(fevent.downinfo.downsize/fevent.downinfo.maxsize * 100)+"%");
     }
   }else{
-    d.find('.size').text(renderSize(fevent.filesize));
+    d.find('.size').text(renderSize(fevent.filesize)).attr("title",renderSize(fevent.filesize));
   }
   d.data('data', fevent);
   d.data('type', "file");
@@ -315,7 +316,7 @@ function addfileing(fevent){
         success:function(e){
           if(!e.fail){
             if(!_e.data("data")){_e.data("data",e)}
-            _e.find('.name').text(e.filename);
+            _e.find('.name').text(e.filename).attr("title",e.filename);
             if(e.maxsize!=0){
               _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%");
             }
@@ -360,7 +361,7 @@ function renderSize(value){
     }
     var unitArr = new Array("Bytes","KB","MB","GB","TB","PB","EB","ZB","YB");
     var index=0,
-        srcsize = parseFloat(value);
+        srcsize = parseFloat(value),
         index=Math.floor(Math.log(srcsize)/Math.log(1024));
     var size =srcsize/Math.pow(1024,index);
     //  保留的小数位数
@@ -376,7 +377,7 @@ function opennew(data){
     if(ext == el){
       //是图片
       $(".imageview img").attr("src",serveraddr+"download.php?type=openfile&file="+data.filename);
-      $(".imageview .fileinfo").text(data.filename)
+      $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
       $(".imageview").show();
       newopen = false;
     }

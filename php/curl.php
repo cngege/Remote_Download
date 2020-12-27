@@ -34,41 +34,52 @@ class curl{
             //URL 解码 + "_"前缀
             $this->downfilename = urldecode($_.$this->downfilename);    //最后确认要保存到本地的文件名
             
-            //file_put_contents(config."/install.lock",config."/".$this->downfilename.".json");
-            $this->key = md5($this->downfilename);
-            
-            $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
-            echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
-            
-            header("Content-Length: ${ob_get_length()}");
-            ob_end_flush();
-            flush();
-            if (function_exists("fastcgi_finish_request")) {
-                fastcgi_finish_request(); /* 响应完成, 关闭连接 */
-            } 
-            
-            $this->write($this->url,$this->downfilename,null,null,false,true);
-            
-            $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
-            $ch = curl_init($this->url);
-            curl_setopt($ch, CURLOPT_FILE, $this->fp);
-            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
-            curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-            curl_setopt ($ch, CURLOPT_REFERER, $this->url);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
-            curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, array($this, "progress"));
-            curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1); // 302 跳转
-            curl_exec($ch);
-            if (curl_errno($ch)) {//如果发生了错误
-                $this->write($this->url,$this->downfilename,$this->urlsize,null,true,false);
+            $maxsize = getmaxsize();
+            $freesize = getfreesize();
+            //如果剩余容量足够
+            if($freesize > $this->urlsize){
+                $this->key = md5($this->downfilename);
+                $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
+                echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
+                
+                header("Content-Length: ${ob_get_length()}");
+                ob_end_flush();
+                flush();
+                if (function_exists("fastcgi_finish_request")) {
+                    fastcgi_finish_request(); /* 响应完成, 关闭连接 */
+                } 
+                
+                $this->write($this->url,$this->downfilename,null,null,false,true);
+                
+                $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
+                $ch = curl_init($this->url);
+                curl_setopt($ch, CURLOPT_FILE, $this->fp);
+                //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
+                curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+                curl_setopt ($ch, CURLOPT_REFERER, $this->url);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
+                curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, array($this, "progress"));
+                curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1); // 302 跳转
+                curl_exec($ch);
+                if (curl_errno($ch)) {//如果发生了错误
+                    $this->write($this->url,$this->downfilename,$this->urlsize,null,true,false);
+                }else{
+                    $_json = dejson($this->redis->get($this->key));
+                    $_json->downing=false;
+                    $this->redis->set($this->key,json($_json));
+                }
+                curl_close($ch);
+                fclose($this->fp);
+                $this->redis->close();
             }else{
-                $_json = dejson($this->redis->get($this->key));
-                $_json->downing=false;
-                $this->redis->set($this->key,json($_json));
+                echo json(array("code"=>3,"msg"=>"目录容量不足无法下载该文件,剩余:".round($freesize/1024/1024,2)."MB"));    //返回前端，容量不足 不下载
+                header("Content-Length: ${ob_get_length()}");
+                ob_end_flush();
+                flush();
             }
-            curl_close($ch);
-            fclose($this->fp);
-            $this->redis->close();
+
+            
+
         }catch(Exception $e){
             $_json = dejson($this->redis->get($this->key));
             $_json->fail=true;

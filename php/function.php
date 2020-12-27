@@ -275,3 +275,17 @@ function linkRedis(){
         exit(json(array("code"=>3,"msg"=>"Redis连接出错:".$e)));
     }
 }
+
+//总容量max,剩余容量last
+function getsize(){
+    return array("max"=>disk_total_space(SAVEPATH),"last"=>disk_free_space(SAVEPATH));
+    //return array("max"=>disk_total_space(SAVEPATH),"last"=>1024*1024*1024*1024);
+}
+
+function getmaxsize(){
+    return disk_total_space(SAVEPATH);
+}
+
+function getfreesize(){
+    return disk_free_space(SAVEPATH);
+}
