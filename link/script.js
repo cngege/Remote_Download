@@ -17,7 +17,9 @@ $(function(){
         func[i][1](func[i][0],i);
       }
     }
-  },1000)
+  },1000);
+  //查询服务器硬盘空间大小 显示在前端
+  updatesizebar();
 })
 
 
@@ -239,6 +241,8 @@ function addfileok(fevent){
           }else{
             $.jqAlert({content:"删除失败",type:"warning"});
           }
+          //更新服务器磁盘容量
+          updatesizebar();
         }
       }
     })
@@ -286,6 +290,8 @@ function addfileing(fevent){
             }else{
               $.jqAlert({content:"删除失败",type:"warning"});
             }
+            //更新服务器磁盘容量
+            updatesizebar();
           }
         }
       })
@@ -330,6 +336,8 @@ function addfileing(fevent){
               func[i]=[]; //不再发出下载进度请求
               _e.data('type', "file");
               _e.find('.size').text("(完成)"+ renderSize(e.maxsize));
+              //更新服务器磁盘容量
+              updatesizebar();
             }else{
               //正在下载的情况下
               if(e.maxsize!=0){
@@ -385,6 +393,29 @@ function opennew(data){
 
   if(newopen)
     window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
+}
+
+//请求服务器文件夹容量 并图形化在前端
+function updatesizebar(){
+  $.ajax({//请求下载进度
+    url: serveraddr+"download.php",
+    data:{type:"getcapa"},
+    dataType: 'json',
+    success:function(e){
+      $(".dirsize .showsize .free").text("剩余"+renderSize(e.free)).attr("title",e.free+"byte");
+      $(".dirsize .showsize .max").text("总共"+renderSize(e.max)).attr("title",e.max+"byte");
+      let used = Math.round((e.max-e.free)/e.max*100);  //已用部分的百分比
+      $(".dirsize .showsize .bar_box .bar").css("width",used+"%");
+      $(".dirsize .showsize .bar_box .bar span").text(used+"%");
+      $(".dirsize .showsize .bar_box").attr("title",`已使用磁盘空间${used}%,${renderSize(e.max-e.free)}`);
+
+      if(used >= 95){   //当已用空间大于 95%
+        $(".dirsize .showsize .bar_box .bar").css("background","#e84118");
+      }else if(used >= 80){   //当已用空间大于 80%
+        $(".dirsize .showsize .bar_box .bar").css("background","#fbc531")
+      }
+    }
+  })
 }
 
 

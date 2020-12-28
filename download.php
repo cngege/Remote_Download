@@ -177,6 +177,9 @@ if($type == 'login'){
         $redis->close();
         exit($_data);
     }
+}else if($type == "getcapa"){    //获取文件保存目录剩余空间使用情况[剩余空间/总空间]
+    if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    exit(json(array("max"=>getmaxsize(),"free"=>getfreesize())));
 }
 
 

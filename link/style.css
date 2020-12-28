@@ -81,9 +81,67 @@ html,body{
   border-bottom: 3px solid #000;   /*字体下方的黑色粗线*/
 }
 
+/* 服务器容量显示 */
+.dirsize{
+  position: relative;
+  margin: 10px auto;              /*上下外边距 空10px的距离*/
+  width: 100%;
+  height: 60px;
+}
+
+.dirsize .showsize{
+  position: relative;
+  width: 100%;
+  height: 30px;
+}
+
+.dirsize .showsize .free,
+.dirsize .showsize .max{
+  line-height: 30px;
+  color: #44bd32;
+  font-weight: bold;
+}
+
+.dirsize .showsize .max{
+  position: absolute;
+  right: 0;
+}
+
+/* 显示大小容量进度条外边框 */
+.dirsize .showsize .bar_box{
+  width: 100%;
+  height: 15px;
+  border-radius: 50px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4) inset;
+  background: #dcdde1;
+  overflow: hidden;
+}
+
+.dirsize .showsize .bar_box .bar{
+  position: absolute;
+  width: 0%;
+  height: 14px;
+  border-radius: 50px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  background: #44bd32;
+  text-align: center;
+  transition: width 1s;
+  overflow: hidden;
+}
+
+.dirsize .showsize .bar_box .bar span{
+  display: block;
+  color: #fff;
+  font-weight: normal;
+  line-height: 15px;
+  font-size: 13px;
+}
+
+/* 下载输入控件 */
+
 .download_box{
   position: relative;
-  margin-top: 50px;              /*上方外边距 空50px的距离*/
+  margin-top: 10px;              /*上方外边距 空10px的距离*/
   width: 100%;
   height: 40px;
   display: flex;
