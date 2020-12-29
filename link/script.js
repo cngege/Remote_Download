@@ -37,7 +37,7 @@ $(".download_box .download_btn button").click(function(event) {
     $.jqAlert({content:"正在发送下载任务请求……",type:"success"});
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
-      data: {type: 'curl',url:input.val()},
+      data: $.cookie("issetcookie")? {type: 'curl',url:input.val(),downcookie:$.cookie("downcookie")} : {type: 'curl',url:input.val()},
       //timeout: 500,
       success:function(ve){
         if(code(ve)){
@@ -152,10 +152,22 @@ $(".install .login button").click(function(event) {
 // 设置按钮
 $("#setup_btn").click(function(event) {
   /* Act on the event */
-  //alert("建设中……");
+  if($(".install").css('display')=="none"){
+    $(".setup_form_box").css("display","inline");   //显示设置页窗口
+    if($.cookie("issetcookie")){
+      $(".setup_form_box .setcookie input").attr("checked","checked");
+    }
+    if($.cookie("setrename")){
+      $(".setup_form_box .setrename input").attr("checked","checked");
+    }
+    $(".setup_form_box .setup_form .setcookie_text").val(window.atob($.cookie("downcookie")));
+  }
 });
+
+
+// 设置页窗口
 // 退出登录按钮
-$("#setup_logout").click(function(event) {
+$(".setup_form_box .btn_box .logout").click(function(event) {
   /* Act on the event */
   $.ajax({
     url: serveraddr+"download.php",
@@ -170,6 +182,26 @@ $("#setup_logout").click(function(event) {
     }
   })
 });
+
+//关闭设置设窗口按钮
+$(".setup_form_box .btn_box .form_close").click(function(event) {
+  /* Act on the event */
+  $.cookie("downcookie",window.btoa($(".setup_form_box .setup_form .setcookie_text").val()))
+  $(".setup_form_box").hide();
+});
+
+//是否重命名switch被点击
+$(".setup_form_box .setrename input[type='checkbox']").click(function(event) {
+  /* Act on the event */
+  $.cookie("setrename",$(this).is(':checked'));
+});
+
+//是否离线下载附带Cookie switch被点击
+$(".setup_form_box .setcookie input[type='checkbox']").click(function(event) {
+  /* Act on the event */
+  $.cookie("issetcookie",$(this).is(':checked'));
+});
+
 
 
 // 页面内显示图片 控件事件
@@ -330,6 +362,7 @@ function addfileing(fevent){
             }
             if(!e.downing){
               //下载完成
+              func[i]=[]; //不再发出下载进度请求
               _e.data('type', "file");
               _e.find('.size').text("(结束)"+ renderSize(e.maxsize));
             }

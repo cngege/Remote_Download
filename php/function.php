@@ -158,8 +158,11 @@ function downtoweb($_name,$_isstream = false){
         $file=fopen($name,"rb");
         
         header("Accept-Ranges: bytes");
-        if(in_array(strtolower($ext),array("mp4","rmvb","flv","amr","ogg","mp3"))){
+        if(in_array(strtolower($ext),array("mp4","rmvb","flv","amr","webm"))){
             header("Content-type:video/$ext");
+        }else if(in_array(strtolower($ext),array("mp3","ogg","wav"))){      //如果是图片
+            header('Content-type:audio/'.$ext);
+            header('x-upyun-content-type:audio/'.$ext);
         }else if(in_array(strtolower($ext),array("png","jpg","jpeg","gif","webp"))){      //如果是图片
             header('Content-type:image/'.$ext);
             header_remove("Accept-Ranges");

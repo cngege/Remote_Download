@@ -41,13 +41,14 @@
   white-space: nowrap;  /*只允许文字一行显示*/
 }
 
-/* 设置按钮 */
-.setup{
-  right: 30px;
-  bottom: 40px;
-  width: 50px;
-}
-
-.setup .setup_btn{
-  height: 50px;
+/* 点击设置按钮的时候打开的窗口 */
+.setup_form_box{
+  top: 0;
+  left: 0;
+  transform: translate(0,0);
+  box-shadow: none;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  padding: 0px;
 }

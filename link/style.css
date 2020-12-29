@@ -4,6 +4,7 @@ html,body{
   width: 100%;
   height: 100%;
   background: #dcdde1;
+  /* overflow: hidden; */
   font-family: sans-serif;
 }
 
@@ -402,13 +403,14 @@ html,body{
   width: 50px;
   height: 50px;
   /* background: red; */
-  transition: all .5s;
+  /* transition: all .5s; */
 }
 
-.setup:hover{
+/* .setup:hover{
   height: 130px;
-}
+} */
 
+/* 齿轮按钮 和 退出登录按钮 */
 .setup .setup_btn{
   position: absolute;
   right: 0;
@@ -431,20 +433,218 @@ html,body{
   height: 100%;
 }
 
-.setup:hover .setup_btn.setup_icon{
+/* 让鼠标悬浮时 图标自旋转 */
+.setup_btn.setup_icon:hover{
   transform: rotate(360deg);
 }
 
-
-/* 退出登录图标 */
-.setup .setup_btn.setup_logout_icon{
-  opacity: 0;
+/* 点击设置按钮的时候打开的窗口 */
+.setup_form_box{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 400px;
+  min-width: 400px;
+  height: 450px;
+  box-shadow: 0 0 10px rgba(0,0,0,.5);
+  border-radius: 10px;
+  background: white;
+  padding: 0;
+  z-index: 9;
 }
 
-.setup:hover .setup_btn.setup_logout_icon{
-  opacity: 1;
-  bottom: 70px;
+.setup_form_box .setup_form{
+  position: relative;
+  width: 95%;
+  height: 95%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
 }
+
+
+.setup_form_box .setrename,     /* 指定下载文件是否要手动重命名 */
+.setup_form_box .setcookie      /* 指定设置Cookie box */
+{
+  padding: 0;
+  margin: 0;
+  position: relative;
+  width: 100%;
+  height: 50px;
+  /* background: #000; */
+}
+
+.setup_form_box .setrename_switch,     /* 设置重命名选择器switch样式 */
+.setup_form_box .setcookie_switch      /* 设置"设置Cookie" 选择器样式 */
+{
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.setup_form_box .setrename .text,
+.setup_form_box .setcookie .text{
+  line-height: 50px;
+  font-weight: bold;
+}
+
+/* 设置Cookie 的文本输入 */
+.setup_form_box .setup_form .setcookie_text{
+  position: relative;
+  resize: vertical;
+  width: 98%;
+  min-height: 80px;
+  outline: none;
+  border: 1px solid #000;
+}
+
+.setup_form_box .setup_form .setcookie_text:focus{
+  border: none;
+  outline:1px solid #00a8ff;
+}
+
+/* 设置窗口最后一行按钮 */
+.setup_form_box .setup_form .btn_box{
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 60px;
+  text-align: center;
+}
+
+/* 设置窗口底部按钮 */
+.setup_form_box .setup_form .btn_box button{
+  background: none;
+  border: 2px solid #000;
+  font-family: "montserrat",sans-serif;
+  text-transform: uppercase;
+  padding: 10px 40px;
+  min-width: 50px;
+  margin: auto 10px;
+  cursor: pointer;
+  transition: color 0.4s linear;
+  position: relative;
+  top: 50%;
+  outline: none;
+  transform: translateY(-50%);
+}
+
+.setup_form_box .setup_form .btn_box button:hover{
+  color: white;
+}
+
+.setup_form_box .setup_form .btn_box button::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: -1;
+  transition: transform 0.5s;
+  transform-origin: 0 0;
+  transition-timing-function: cubic-bezier(0.5,1.6,0.4,0.7);
+}
+
+.setup_form_box .setup_form .btn_box .logout::before{
+  transform: scaleY(0);
+}
+
+.setup_form_box .setup_form .btn_box .form_close::before{
+  transform: scaleY(0);
+}
+
+.setup_form_box .setup_form .btn_box .logout:hover::before{
+  transform: scaleX(1);
+}
+
+.setup_form_box .setup_form .btn_box .form_close:hover::before{
+  transform: scaleY(1);
+}
+
+/* switch复选框按钮 */
+.switch{
+  cursor: pointer;
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 32px;
+}
+
+.switch input[type="checkbox"]{
+  display: none;
+}
+
+.switch::before{
+  position: absolute;
+  left: 0;
+  top: 0;
+  content: "";
+  display: block;
+  width: 60px;
+  height: 32px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 0 5px rgba(0,0,0,.9);
+}
+
+.switch input[type="checkbox"] + .line::before,
+.switch input[type="checkbox"] + .line::after{
+  position: absolute;
+  top: 14px;
+  left: 4px;
+  content: "";
+  width: 24px;
+  height: 4px;
+  background-color: #d3d4ec;
+  border-radius: 5px;
+  transition: .3s;
+}
+
+.switch input[type="checkbox"] + .line::before{
+  transform: scaleX(0);
+  left: 4px;
+  transform-origin: left;
+}
+
+.switch input[type="checkbox"] + .line::after{
+  transform: scaleX(1);
+  left: 32px;
+  transform-origin: right;
+}
+
+.switch input[type="checkbox"]:checked + .line::before{
+  transform: scaleX(1);
+}
+
+.switch input[type="checkbox"]:checked + .line::after{
+  transform: scaleX(0);
+}
+
+.switch input[type="checkbox"] + .line span::before{
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  content: "";
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px #d3d4ec;
+  background-color: #fff;
+  transition: .3s;
+
+}
+
+.switch input[type="checkbox"]:checked + .line span::before{
+  box-shadow: inset 0 0 0 10px #275efe;
+  left: 32px;
+}
+
+
 
 /* 图片页面内显示控件样式 */
 .imageview{
