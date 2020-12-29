@@ -138,6 +138,8 @@ $(".install .login button").click(function(event) {
           $(".install .setpasswd").css("display","none");
           $(".install").css("display","none");
           getfilelist();
+          //查询服务器硬盘空间大小 显示在前端
+          updatesizebar();
           $.jqAlert({content:"登录成功",type:"success"});
         }else{
           $.jqAlert({content:"密码不正确",type:"warning"});
@@ -402,17 +404,19 @@ function updatesizebar(){
     data:{type:"getcapa"},
     dataType: 'json',
     success:function(e){
-      $(".dirsize .showsize .free").text("剩余"+renderSize(e.free)).attr("title",e.free+"byte");
-      $(".dirsize .showsize .max").text("总共"+renderSize(e.max)).attr("title",e.max+"byte");
-      let used = Math.round((e.max-e.free)/e.max*100);  //已用部分的百分比
-      $(".dirsize .showsize .bar_box .bar").css("width",used+"%");
-      $(".dirsize .showsize .bar_box .bar span").text(used+"%");
-      $(".dirsize .showsize .bar_box").attr("title",`已使用磁盘空间${used}%,${renderSize(e.max-e.free)}`);
+      if(e.code == 1){
+        $(".dirsize .showsize .free").text("剩余"+renderSize(e.free)).attr("title",e.free+"byte");
+        $(".dirsize .showsize .max").text("总共"+renderSize(e.max)).attr("title",e.max+"byte");
+        let used = Math.round((e.max-e.free)/e.max*100);  //已用部分的百分比
+        $(".dirsize .showsize .bar_box .bar").css("width",used+"%");
+        $(".dirsize .showsize .bar_box .bar span").text(used+"%");
+        $(".dirsize .showsize .bar_box").attr("title",`已使用磁盘空间${used}%,${renderSize(e.max-e.free)}`);
 
-      if(used >= 95){   //当已用空间大于 95%
-        $(".dirsize .showsize .bar_box .bar").css("background","#e84118");
-      }else if(used >= 80){   //当已用空间大于 80%
-        $(".dirsize .showsize .bar_box .bar").css("background","#fbc531")
+        if(used >= 95){   //当已用空间大于 95%
+          $(".dirsize .showsize .bar_box .bar").css("background","#e84118");
+        }else if(used >= 80){   //当已用空间大于 80%
+          $(".dirsize .showsize .bar_box .bar").css("background","#fbc531")
+        }
       }
     }
   })
