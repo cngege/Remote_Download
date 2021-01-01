@@ -199,6 +199,9 @@ html,body{
   height: 60px;
   background: #26de81;
   margin-top: 15px;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 /* 进度条 */
@@ -220,6 +223,7 @@ html,body{
   transform: translateY(-50%);
   color: #000;
   font-weight: bold;
+  cursor: pointer;
 }
 
 /* 文件大小显示 */
@@ -230,6 +234,7 @@ html,body{
   transform: translate(-50%,-50%);
   color: #000;
   font-weight: bold;
+  cursor: pointer;
 }
 
 /* 三个按钮的外层div */
@@ -688,4 +693,132 @@ html,body{
   right: 10px;
   z-index: 1001;
   cursor: pointer;
+}
+
+/* 点击文件DIV后出现的信息窗口 */
+.fileinfo_box{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.fileinfo_box .fileinfo_close{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 105;
+  background: #00000053;
+}
+
+.fileinfo_box .fileinfo{
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 40%;
+  z-index: 150;
+  background: #fff;
+}
+
+.fileinfo_box .fileinfo .inner{
+  position: absolute;
+  width: 80%;
+  height: 95%;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  transform: translate(-50%,-50%);
+  /* background: #000 */
+}
+
+.fileinfo_box .fileinfo .inner .fname,
+.fileinfo_box .fileinfo .inner .fsize{
+  width: 100%;
+  height: 50px;
+  overflow: hidden;
+  text-align: center;
+  /* background: #000 */
+}
+
+.fileinfo_box .fileinfo .inner .fname span{
+  font-size: 13px;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.fileinfo_box .fileinfo .inner .fsize span{
+  font-size: 15px;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+/* FileInfo窗口底部三个按钮 */
+.fileinfo_box .fileinfo .inner .btn button{
+  background: none;
+  border: 2px solid #000;
+  font-family: "montserrat",sans-serif;
+  text-transform: uppercase;
+  padding: 10px 0;
+  width: 100%;
+  min-width: 50px;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: color 0.4s linear;
+  position: relative;
+  /* left: 50%; */
+  outline: none;
+  /* transform: translateX(-50%); */
+}
+
+.fileinfo_box .fileinfo .inner .btn{
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+.fileinfo_box .fileinfo .inner .btn button:focus{
+  color: white;
+}
+
+.fileinfo_box .fileinfo .inner .btn button::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: -1;
+  transition: transform 0.5s;
+  transform-origin: 0 0;
+  transition-timing-function: cubic-bezier(0.5,1.6,0.4,0.7);
+}
+
+.fileinfo_box .fileinfo .inner #open::before{
+  transform: scaleX(0);
+}
+
+.fileinfo_box .fileinfo .inner #download::before{
+  transform: scaleX(0);
+}
+
+.fileinfo_box .fileinfo .inner #delete::before{
+  transform: scaleX(0);
+}
+
+.fileinfo_box .fileinfo .inner #open:focus::before{
+  transform: scaleX(1);
+}
+
+.fileinfo_box .fileinfo .inner #download:focus::before{
+  transform: scaleX(1);
+}
+
+.fileinfo_box .fileinfo .inner #delete:focus::before{
+  transform: scaleX(1);
 }

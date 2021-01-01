@@ -210,8 +210,11 @@ $(".imageview .closebtn").click(function(event) {
   $(".imageview").hide();
 });
 
-
-
+//FileInfo窗口 相关事件绑定
+$(".fileinfo_box .fileinfo_close").click(function(event) {
+  /* Act on the event */
+  $(".fileinfo_box").css("display","none");
+});
 
 //获取并设置文件夹内文件
 function getfilelist(){
@@ -233,8 +236,49 @@ function getfilelist(){
 
 function addfileok(fevent){
   let d = $(".copyright .download").clone(true);
+  d.data('data', fevent);
+  d.data('type', "file");
+  let CEvent = {open:function(event){
+    //alert($(this).parent().parent().data("data").file)
+    opennew(d.data("data"));
+    //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+    //alert(JSON.stringify(d.data("data")));
+  },download:function(event){
+    let eve = d.data("data");
+    $.jqAlert({content:"准备下载……",type:"info"});
+    $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
+  },delete:function(event){
+    let eve = d.data("data");
+    $.ajax({
+      url:serveraddr+"download.php",
+      data:{type:"delfile",file:eve.filename},
+      success:function(e){
+        if(code(e)){
+          if(e.value){
+            d.hide("normal");
+            $(".fileinfo_box").css("display","none");
+          }else{
+            $.jqAlert({content:"删除失败",type:"warning"});
+          }
+          //更新服务器磁盘容量
+          updatesizebar();
+        }
+      }
+    })
+  }}
+  let showinfo = function (event){
+    if($(".box_body").css("width") == $("body").css("width")){
+      $(".fileinfo_box").css("display","inline"); //显示文件详细信息窗口
+      $(".fileinfo_box .inner .fname span").text(fevent.filename);  //修改窗口中显示的文件名
+      $(".fileinfo_box .inner .fsize span").text(renderSize(fevent.filesize)+" - "+fevent.filesize+"byte");
+      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e)});
+      $(".fileinfo_box .inner #download").unbind("click").click(function(e){CEvent.download(e)});
+      $(".fileinfo_box .inner #delete").unbind("click").click(function(e){CEvent.delete(e)});
+
+    }
+  }
   d.css("display","");
-  d.find('.name').text(fevent.filename).attr("title",fevent.filename);
+  d.find('.name').text(fevent.filename).attr("title",fevent.filename).click(showinfo);
   //如果服务器指示这个下载任务是以报错而结束的话
   if(fevent.downinfo && fevent.downinfo.fail){
     d.find('.size').text("Download Error");
@@ -244,42 +288,23 @@ function addfileok(fevent){
       d.find(".downloadbar").css("width",Math.round(fevent.downinfo.downsize/fevent.downinfo.maxsize * 100)+"%");
     }
   }else{
-    d.find('.size').text(renderSize(fevent.filesize)).attr("title",renderSize(fevent.filesize));
+    d.find('.size').text(renderSize(fevent.filesize)).attr("title",renderSize(fevent.filesize)).click(showinfo);
   }
-  d.data('data', fevent);
-  d.data('type', "file");
   d.find('.open_btn').click(function(event) {
     /* Act on the event */
     //alert($(this).parent().parent().data("data").file)
-    opennew(d.data("data"));
+    CEvent.open(event);
     //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
     //alert(JSON.stringify(d.data("data")));
 
   });
   d.find('.down_btn').click(function(event) {
     /* Act on the event */
-    let eve = $(this).parent().parent().data("data");
-    $.jqAlert({content:"准备下载……",type:"info"});
-    $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
+    CEvent.download(event)
   });
   d.find('.delete_btn').click(function(event) {
     /* Act on the event */
-    let eve = $(this).parent().parent().data("data");
-    $.ajax({
-      url:serveraddr+"download.php",
-      data:{type:"delfile",file:eve.filename},
-      success:function(e){
-        if(code(e)){
-          if(e.value){
-            d.hide("normal");
-          }else{
-            $.jqAlert({content:"删除失败",type:"warning"});
-          }
-          //更新服务器磁盘容量
-          updatesizebar();
-        }
-      }
-    })
+    CEvent.delete(event)
 
   });
   //d.prependTo($(".download_list"));
@@ -292,28 +317,17 @@ function addfileing(fevent){
   d.css("display","");
   if(fevent.value){d.data('data', fevent.value)}  //只有当value存在的时候 才添加值到data
   d.data('type', "downinfo");
-  d.find('.open_btn').click(function(event) {
-    /* 浏览器打开-按钮点击事件 */
+
+  let CEvent = {open:function(event){
     if(d.data("type") == "file"){
-      //let eve = $(this).parent().parent().data("data");
-      //window.open(eve.file)
       opennew(d.data("data"));
-      //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
-      //alert(JSON.stringify(d.data("data")));
     }
-  });
-  d.find('.down_btn').click(function(event) {
-    /* 下载到本地-按钮点击事件 */
-    if(d.data("type") == "file"){
-      let eve = $(this).parent().parent().data("data");
+  },download:function(event){
+      let eve = d.data("data");
       $.jqAlert({content:"准备下载……",type:"info"});
       $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
-    }
-  });
-  d.find('.delete_btn').click(function(event) {
-    /* 删除远端文件-按钮点击事件 */
-    let eve = $(this).parent().parent().data("data");
-    if(d.data("type") == "file"){
+  },delete:function(event){
+    let eve = d.data("data");
       $.ajax({
         url:serveraddr+"download.php",
         data:{type:"delfile",file:eve.filename},
@@ -321,6 +335,7 @@ function addfileing(fevent){
           if(code(del_data)){
             if(del_data.value){
               d.hide("normal");
+              $(".fileinfo_box").hide();
             }else{
               $.jqAlert({content:"删除失败",type:"warning"});
             }
@@ -329,6 +344,42 @@ function addfileing(fevent){
           }
         }
       })
+  }}
+  let showinfo = function (event){
+    if($(".box_body").css("width") == $("body").css("width")){
+      $(".fileinfo_box").css("display","inline"); //显示文件详细信息窗口
+      $(".fileinfo_box .inner .fname span").text(d.data("data").filename);  //修改窗口中显示的文件名
+      $(".fileinfo_box .inner .fsize span").text(renderSize(d.data("data").maxsize)+" - "+d.data("data").maxsize+"byte");
+      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e)});
+      $(".fileinfo_box .inner #download").unbind("click").click(function(e){CEvent.download(e)});
+      $(".fileinfo_box .inner #delete").unbind("click").click(function(e){CEvent.delete(e)});
+
+    }
+  };
+  d.find('.name').click(showinfo);
+  d.find('.size').click(showinfo);
+
+  d.find('.open_btn').click(function(event) {
+    /* 浏览器打开-按钮点击事件 */
+    if(d.data("type") == "file"){
+      //let eve = $(this).parent().parent().data("data");
+      //window.open(eve.file)
+      CEvent.open(event)
+      //window.open(serveraddr+"download.php?type=openfile&file="+d.data("data").filename);
+      //alert(JSON.stringify(d.data("data")));
+    }
+  });
+  d.find('.down_btn').click(function(event) {
+    /* 下载到本地-按钮点击事件 */
+    if(d.data("type") == "file"){
+      CEvent.download(event)
+    }
+  });
+  d.find('.delete_btn').click(function(event) {
+    /* 删除远端文件-按钮点击事件 */
+    let eve = $(this).parent().parent().data("data");
+    if(d.data("type") == "file"){
+      CEvent.delete(event);
     }else if(d.data("type") == "downinfo"){   //结束下载任务
       $.ajax({
         url:serveraddr+"download.php",
