@@ -856,3 +856,37 @@ html,body{
 .fileinfo_box .fileinfo .inner #delete:focus::before{
   transform: scaleX(1);
 }
+
+
+/* Video Player */
+.videoplayer{
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  padding: 40px 10px 10px 10px;
+}
+
+.videoplayer .closebtn{
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  color: #000;
+}
+
+.videoplayer .closebtn:hover{
+  background: #fbc531;
+  border-radius: 2px;
+  transition: background .2s;
+}
+
+.videoplayer video{
+  outline: none !important;
+  -moz-outline: none !important;
+}

@@ -2,6 +2,12 @@
 //let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
 let serveraddr="";
 let func = [];
+let player;
+let exts = {
+  img:["png","jpg","jpeg","gif","webp"],
+  video:["mp4","rmvb","flv","amr","webm"],
+  audio:["mp3","ogg","wav"]
+};
 
 $(function(){
   if(document.URL.indexOf("file://")==0){
@@ -20,6 +26,10 @@ $(function(){
   },1000);
   //查询服务器硬盘空间大小 显示在前端
   updatesizebar();
+  
+  window.HELP_IMPROVE_VIDEOJS = false;
+  player = videojs("VideoPlayer",{language:$("html").attr("lang")});
+
 })
 
 
@@ -215,6 +225,17 @@ $(".fileinfo_box .fileinfo_close").click(function(event) {
   /* Act on the event */
   $(".fileinfo_box").css("display","none");
 });
+
+
+//视频播放器窗口相关事件
+//关闭按钮
+$(".videoplayer .closebtn").click(function(event) {
+  /* Act on the event */
+  player.pause();
+  $(this).parent().hide();
+
+});
+
 
 //获取并设置文件夹内文件
 function getfilelist(){
@@ -466,19 +487,42 @@ function renderSize(value){
 function opennew(data){
   let ext = data.filename.substr(data.filename.lastIndexOf(".")+1);
   let newopen = true;
-  let img = ["png","jpg","jpeg","gif","webp"];
-  $.each(img, function(index, el) {
+  $.each(exts.img, function(index, el) {
     if(ext == el){
       //是图片
       $(".imageview img").attr("src",serveraddr+"download.php?type=openfile&file="+data.filename);
       $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
       $(".imageview").show();
       newopen = false;
+      return;
     }
   });
 
-  if(newopen)
-    window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
+  $.each(exts.video, function(index, el) {
+    if(ext == el){
+      //是视频
+      $(".videoplayer").show();
+      player.src({type:'video/'+el,src:serveraddr+"download.php?type=openfile&file="+data.filename})
+      player.play();
+      // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
+      newopen = false;
+      return;
+    }
+  });
+
+  $.each(exts.audio, function(index, el) {
+    if(ext == el){
+      //是视频
+      $(".videoplayer").show();
+      player.src({type:'audio/'+el,src:serveraddr+"download.php?type=openfile&file="+data.filename})
+      player.play();
+      // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
+      newopen = false;
+      return;
+    }
+  });
+
+  if(newopen)window.open(serveraddr+"download.php?type=openfile&file="+data.filename);
 }
 
 //请求服务器文件夹容量 并图形化在前端
