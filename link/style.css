@@ -26,7 +26,7 @@ html,body{
 
   width: 90%;
   height: 90%;
-  border-radius: 30px;
+  border-radius: 10px;
   box-shadow: 0 0 15px rgba(0,0,0,.3);
 
   overflow: none;
@@ -864,6 +864,8 @@ html,body{
   position: absolute;
   left: 50%;
   top: 50%;
+  width: 720px;
+  height: 350px;
   transform: translate(-50%,-50%);
   border-radius: 5px;
   background: #fff;
@@ -886,7 +888,9 @@ html,body{
   transition: background .2s;
 }
 
-.videoplayer video{
+.videoplayer .video-js{
+  width: 100%;
+  height: 100%;
   outline: none !important;
   -moz-outline: none !important;
 }

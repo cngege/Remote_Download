@@ -26,10 +26,10 @@ $(function(){
   },1000);
   //查询服务器硬盘空间大小 显示在前端
   updatesizebar();
-  
-  window.HELP_IMPROVE_VIDEOJS = false;
-  player = videojs("VideoPlayer",{language:$("html").attr("lang")});
 
+  window.HELP_IMPROVE_VIDEOJS = false;
+  //player = videojs("VideoPlayer",{language:$("html").attr("lang")});
+  player = videojs("VideoPlayer");
 })
 
 
