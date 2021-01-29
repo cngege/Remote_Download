@@ -231,7 +231,8 @@ $(".fileinfo_box .fileinfo_close").click(function(event) {
 //关闭按钮
 $(".videoplayer .closebtn").click(function(event) {
   /* Act on the event */
-  player.pause();
+  //player.pause();
+  player.src({type:'video/mp4',src:"127.0.0.1"})
   $(this).parent().hide();
 
 });
