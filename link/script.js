@@ -59,9 +59,9 @@ $(".download_box .download_btn button").click(function(event) {
 
 $(".rename_div .btn_box button").click(function(event) {
   /* Act on the event */
-  $(".rename_div").css("display","none"); //隐藏
   let newname = $(".rename_div .input input").val();
   if(newname != ""){
+    $(".rename_div").css("display","none"); //隐藏
     SendDownload($(".download_input input").val(),{
       cookie:$.cookie("issetcookie")?$.cookie("downcookie"):"",
       rename:newname
