@@ -144,7 +144,7 @@ function gethost(){
     }
 }
 
-
+//将服务器文件下载到客户端
 function downtoweb($_name,$_isstream = false){
     $name = SAVEPATH.$_name;
     $info = pathinfo($name);
@@ -240,7 +240,7 @@ function geturlname($_url,$from302=false){
         return geturlname($headers['Location'],true);
     }else{
         $reheader = $headers['Content-Disposition'];
-        if($reheader){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
+        if(isset($reheader)){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
             $reDispo = '/.*filename=(([\'\"]).*?\2|[^;\n]*)/m';
             if (preg_match($reDispo, $reheader, $mDispo))
             {

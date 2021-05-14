@@ -14,6 +14,11 @@ $(function(){
     serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
+  //如果下载前要重命名
+  if($.cookie("setrename")){
+    $(".download_box .download_btn button").text('继续');
+  }
+
   //第一次打开页面的时候就获取一次文件列表
   getfilelist()
   //下面每一秒钟循环执行公开数组中的方法一般用作获取离线下载进度显示到前端
@@ -41,13 +46,44 @@ $(function(){
 //URL下载btn【点击下载按钮的事件】:
 $(".download_box .download_btn button").click(function(event) {
   /* Act on the event */
-  let input = $(".download_input input");//[输入框节点]
+    if($.cookie("setrename")){
+      $(".rename_div").css("display","inline"); //显示
+    }
+    else{                                       //下载
+      SendDownload($(".download_input input").val(),{
+        cookie:$.cookie("issetcookie")?$.cookie("downcookie"):"",
+        rename:""
+      });
+    }
+});
+
+$(".rename_div .btn_box button").click(function(event) {
+  /* Act on the event */
+  $(".rename_div").css("display","none"); //隐藏
+  let newname = $(".rename_div .input input").val();
+  if(newname != ""){
+    SendDownload($(".download_input input").val(),{
+      cookie:$.cookie("issetcookie")?$.cookie("downcookie"):"",
+      rename:newname
+    });
+  }
+  $(".rename_div .input input").val("");
+});
+
+function SendDownload(url,json){
   let clearid = null;
-  if(input.val()!==''){
+  if(url!==''){
     $.jqAlert({content:"正在发送下载任务请求……",type:"success"});
+    let senddata = {type:"curl",url:url};
+    if(json.cookie){
+      senddata.downcookie = json.cookie;
+    }
+    if(json.rename){
+      senddata.rename = json.rename;
+    }
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
-      data: $.cookie("issetcookie")? {type: 'curl',url:input.val(),downcookie:$.cookie("downcookie")} : {type: 'curl',url:input.val()},
+      data: senddata,
       //timeout: 500,
       success:function(ve){
         if(code(ve)){
@@ -61,7 +97,7 @@ $(".download_box .download_btn button").click(function(event) {
       }
     })
   }
-});
+}
 
 
 //安装配置页 判断是否有加载必须插件[按钮] 检查服务器扩展页按钮点击后
@@ -203,13 +239,27 @@ $(".setup_form_box .btn_box .form_close").click(function(event) {
 //是否重命名switch被点击
 $(".setup_form_box .setrename input[type='checkbox']").click(function(event) {
   /* Act on the event */
-  $.cookie("setrename",$(this).is(':checked'));
+  if($(this).is(':checked')){
+    $.cookie("setrename","1");
+    //原本的下载按钮名称变为:重命名
+    $(".download_box .download_btn button").text('继续');
+  }else{
+    $.cookie("setrename","");
+    $(".download_box .download_btn button").text('下载');
+  }
+
+
 });
 
 //是否离线下载附带Cookie switch被点击
 $(".setup_form_box .setcookie input[type='checkbox']").click(function(event) {
   /* Act on the event */
-  $.cookie("issetcookie",$(this).is(':checked'));
+  if($(this).is(':checked')){
+    $.cookie("issetcookie",1);
+  }else{
+    $.cookie("issetcookie","");
+  }
+
 });
 
 
@@ -235,6 +285,13 @@ $(".videoplayer .closebtn").click(function(event) {
   player.src({type:'video/mp4',src:"127.0.0.1"})
   $(this).parent().hide();
 
+});
+
+//重命名部分
+//关闭按钮
+$(".rename_div .closebtn").click(function(event) {
+  /* Act on the event */
+  $(".rename_div").css("display","none"); //隐藏
 });
 
 

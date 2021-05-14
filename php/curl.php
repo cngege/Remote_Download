@@ -24,8 +24,11 @@ class curl{
             header("HTTP/1.1 200 OK");
             header('Content-type: application/json; charset=utf-8');
             ob_start();
-            
-            $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
+            if(isset($_GET['rename']) || $_GET['rename']!=""){
+                $_.$this->downfilename = $_GET['rename'];
+            }else{
+                $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
+            }
             $this->urlsize = filesize($this->url);
             $_ = "";
             while(file_exists(SAVEPATH.$_.$this->downfilename)){
