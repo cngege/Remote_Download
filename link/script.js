@@ -5,13 +5,13 @@ let func = [];
 let player;
 let exts = {
   img:["png","jpg","jpeg","gif","webp"],
-  video:["mp4","rmvb","flv","amr","webm"],
-  audio:["mp3","ogg","wav"]
+  video:[["mp4","video/mp4"],["rmvb","video/rmvb"],["flv","video/flv"],["amr","video/amr"],["webm","video/webm"],["m3u8","application/x-mpegURL"]],
+  audio:[["mp3","audio/mp3"],["ogg","audio/ogg"],["wav","audio/wav"]]
 };
 
 $(function(){
   if(document.URL.indexOf("file://")==0){
-    serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
+    serveraddr="http://jp-tyo-ilj-2.natfrp.cloud:26292/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
   //如果下载前要重命名
@@ -557,10 +557,10 @@ function opennew(data){
   });
 
   $.each(exts.video, function(index, el) {
-    if(ext == el){
+    if(ext == el[0]){
       //是视频
       $(".videoplayer").show();
-      player.src({type:'video/'+el,src:serveraddr+"download.php?type=openfile&file="+data.filename})
+      player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename});
       player.play();
       // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
       newopen = false;
@@ -569,10 +569,10 @@ function opennew(data){
   });
 
   $.each(exts.audio, function(index, el) {
-    if(ext == el){
+    if(ext == el[0]){
       //是视频
       $(".videoplayer").show();
-      player.src({type:'audio/'+el,src:serveraddr+"download.php?type=openfile&file="+data.filename})
+      player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename})
       player.play();
       // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
       newopen = false;
