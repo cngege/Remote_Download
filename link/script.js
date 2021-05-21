@@ -551,9 +551,15 @@ function opennew(data){
   $.each(exts.img, function(index, el) {
     if(ext == el){
       //是图片
-      $(".imageview img").attr("src",serveraddr+"download.php?type=openfile&file="+data.filename);
-      $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
-      $(".imageview").show();
+      let img = $("div.dom .imageview").clone();
+      $("body").append(img);
+      img.find("img").attr('src', serveraddr+"download.php?type=openfile&file="+data.filename);
+      img.find(".fileinfo").text(data.filename).attr("title",data.filename);
+      img.find(".closebtn").click(function(event) {
+        /* Act on the event */
+        img.remove();
+      });
+      img.show();
       newopen = false;
       return;
     }
