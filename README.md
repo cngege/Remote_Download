@@ -40,12 +40,14 @@
 
 **开源库**
 本项目涉及到的引用的其他项目:
-Jquery 			: https://jquery.com/
-Jquery_UI 		: https://jqueryui.com/
-VideoJS			: https://videojs.com/
-Iconfont
-jqAlert			: https://www.jq22.com/jquery-info19211
-Jquery_Cookie	: https://plugins.jquery.com/cookie/
+项目  | 地址
+------------- | -------------
+Jquery 			| https://jquery.com/
+Jquery_UI 		| https://jqueryui.com/
+VideoJS			| https://videojs.com/
+Iconfont		| 
+jqAlert			| https://www.jq22.com/jquery-info19211
+Jquery_Cookie	| https://plugins.jquery.com/cookie/
 
   [1]: https://s.pc.qq.com/tousu/img/20210515/1434861_1621068253.jpg
   [2]: https://s.pc.qq.com/tousu/img/20210515/1364285_1621068259.jpg
