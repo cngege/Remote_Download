@@ -36,6 +36,8 @@ $(function(){
   window.HELP_IMPROVE_VIDEOJS = false;
   //player = videojs("VideoPlayer",{language:$("html").attr("lang")});
   //player = videojs("VideoPlayer");
+
+
 })
 
 
@@ -572,12 +574,15 @@ function opennew(data){
       let ID = "video_"+new Date().getTime();     //设置即将新建的video节点的videoid
       $("body").append(video_dom);                //向body最后添加节点
       video_dom.find('video').attr('id', ID);
+      video_dom.find('.fileinfo').text(data.filename);
       let player = videojs(ID,{language:"zh-CN"});
       video_dom.find('.closebtn').click(function(event) {
         /* Act on the event */
         player.dispose();
         video_dom.remove();
       });
+      //UI拖动
+      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer"});
       video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename});
       player.play();
@@ -594,11 +599,14 @@ function opennew(data){
       let ID = "video_"+new Date().getTime();                  //设置即将新建的video节点的videoid
       $("body").append(video_dom);                             //向body最后添加节点
       video_dom.find('video').attr('id', ID);
+      video_dom.find('.fileinfo').text(data.filename);
       let player = videojs(ID,{language:"zh-CN"});
       video_dom.find('.closebtn').click(function(event) {
         player.dispose();
         video_dom.remove();
       });
+      //UI拖动
+      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer"});
       video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename})
       newopen = false;

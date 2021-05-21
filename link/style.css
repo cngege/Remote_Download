@@ -8,6 +8,10 @@ html,body{
   font-family: sans-serif;
 }
 
+body{
+  overflow:hidden !important
+}
+
 .downiframe{
   position: absolute;
   top: 0;
@@ -61,6 +65,12 @@ html,body{
   color: #aaa69d;
 }
 
+/* title2 */
+.font5{
+  color: #666;
+  font-size: 14px;
+  font-family: "Open Sans","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",Arial,Verdana,Tahoma,sans-serif;
+}
 
 
 .inside_box{
@@ -860,17 +870,23 @@ html,body{
 
 /* Video Player */
 .videoplayer{
-  display: none;
   position: absolute;
-  left: 50%;
-  top: 50%;
+  left: calc(50% - 360px);
+  top: calc(50% - 175px);
   width: 720px;
   height: 350px;
-  transform: translate(-50%,-50%);
   border-radius: 5px;
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   padding: 40px 10px 10px 10px;
+}
+
+.videoplayer .fileinfo{
+  position: absolute;
+  top: 5px;
+  width: calc(100% - 50px);
+  height: 30px;
+  line-height: 30px;
 }
 
 .videoplayer .closebtn{
