@@ -37,7 +37,34 @@ $(function(){
   //player = videojs("VideoPlayer",{language:$("html").attr("lang")});
   //player = videojs("VideoPlayer");
 
-
+  //设置按钮可移动
+  let startintval = 0;
+  $("div.setup").draggable({ handle: "div#setup_btn",cursor: "move",scroll:false,
+      drag: function() {
+        startintval++;
+      },
+      stop: function() {
+        startintval = 0;
+      }
+  });
+  //设置按钮点击
+  $("div.setup").click(function(event) {
+    /* Act on the event */
+    if(startintval < 2){
+      //TODO 打开设置窗口
+      if($(".install").css('display')=="none"){
+        $(".setup_form_box").css("display","inline");   //显示设置页窗口
+        if($.cookie("issetcookie")){
+          $(".setup_form_box .setcookie input").attr("checked","checked");
+        }
+        if($.cookie("setrename")){
+          $(".setup_form_box .setrename input").attr("checked","checked");
+        }
+        $(".setup_form_box .setup_form .setcookie_text").val(window.atob($.cookie("downcookie")));
+      }
+    }
+    startintval=0;
+  });
 })
 
 
@@ -198,20 +225,6 @@ $(".install .login button").click(function(event) {
   })
 });
 
-// 设置按钮
-$("#setup_btn").click(function(event) {
-  /* Act on the event */
-  if($(".install").css('display')=="none"){
-    $(".setup_form_box").css("display","inline");   //显示设置页窗口
-    if($.cookie("issetcookie")){
-      $(".setup_form_box .setcookie input").attr("checked","checked");
-    }
-    if($.cookie("setrename")){
-      $(".setup_form_box .setrename input").attr("checked","checked");
-    }
-    $(".setup_form_box .setup_form .setcookie_text").val(window.atob($.cookie("downcookie")));
-  }
-});
 
 
 // 设置页窗口
@@ -582,7 +595,7 @@ function opennew(data){
         video_dom.remove();
       });
       //UI拖动
-      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer"});
+      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer",scroll:false});
       video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename});
       player.play();
@@ -606,7 +619,7 @@ function opennew(data){
         video_dom.remove();
       });
       //UI拖动
-      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer"});
+      video_dom.draggable({ handle: "div.fileinfo",cursor: "move",stack: ".videoplayer",scroll:false});
       video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename})
       newopen = false;
