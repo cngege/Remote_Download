@@ -2,7 +2,7 @@
 //let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
 let serveraddr="";
 let func = [];
-let player;
+//let player;
 let exts = {
   img:["png","jpg","jpeg","gif","webp"],
   video:[["mp4","video/mp4"],["rmvb","video/rmvb"],["flv","video/flv"],["amr","video/amr"],["webm","video/webm"],["m3u8","application/x-mpegURL"]],
@@ -11,7 +11,8 @@ let exts = {
 
 $(function(){
   if(document.URL.indexOf("file://")==0){
-    serveraddr="http://jp-tyo-ilj-2.natfrp.cloud:26292/wget/";
+    serveraddr="http://cngege.f3322.net/wget/";
+    serveraddr="http://192.168.10.10/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
   //如果下载前要重命名
@@ -34,7 +35,7 @@ $(function(){
 
   window.HELP_IMPROVE_VIDEOJS = false;
   //player = videojs("VideoPlayer",{language:$("html").attr("lang")});
-  player = videojs("VideoPlayer");
+  //player = videojs("VideoPlayer");
 })
 
 
@@ -279,13 +280,15 @@ $(".fileinfo_box .fileinfo_close").click(function(event) {
 
 //视频播放器窗口相关事件
 //关闭按钮
-$(".videoplayer .closebtn").click(function(event) {
-  /* Act on the event */
-  //player.pause();
-  player.src({type:'video/mp4',src:"127.0.0.1"})
-  $(this).parent().hide();
-
-});
+// $(".videoplayers .closebtn").click(function(event) {
+//   /* Act on the event */
+//   //player.pause();
+//   let video = $(this).parent();
+//   //video.data("player").src({type:'video/mp4',src:"127.0.0.1"})
+//   video.data('player').dispose();
+//   //$(this).parent().hide();
+//   video.remove();
+// });
 
 //重命名部分
 //关闭按钮
@@ -559,7 +562,17 @@ function opennew(data){
   $.each(exts.video, function(index, el) {
     if(ext == el[0]){
       //是视频
-      $(".videoplayer").show();
+      let video_dom = $(".dom .videoplayer").clone();       //从模板中克隆一个video节点出来
+      let ID = "video_"+new Date().getTime();     //设置即将新建的video节点的videoid
+      $("body").append(video_dom);                //向body最后添加节点
+      video_dom.find('video').attr('id', ID);
+      let player = videojs(ID,{language:"zh-CN"});
+      video_dom.find('.closebtn').click(function(event) {
+        /* Act on the event */
+        player.dispose();
+        video_dom.remove();
+      });
+      video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename});
       player.play();
       // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
@@ -570,11 +583,18 @@ function opennew(data){
 
   $.each(exts.audio, function(index, el) {
     if(ext == el[0]){
-      //是视频
-      $(".videoplayer").show();
+      //是音频
+      let video_dom = $(".dom div.videoplayer").clone();       //从模板中克隆一个video节点出来
+      let ID = "video_"+new Date().getTime();                  //设置即将新建的video节点的videoid
+      $("body").append(video_dom);                             //向body最后添加节点
+      video_dom.find('video').attr('id', ID);
+      let player = videojs(ID,{language:"zh-CN"});
+      video_dom.find('.closebtn').click(function(event) {
+        player.dispose();
+        video_dom.remove();
+      });
+      video_dom.show();                           //在浏览器中显示这个视频窗口
       player.src({type:el[1],src:serveraddr+"download.php?type=openfile&file="+data.filename})
-      player.play();
-      // $(".imageview .fileinfo").text(data.filename).attr("title",data.filename)
       newopen = false;
       return;
     }
