@@ -91,7 +91,7 @@ class curl{
             $_json->fail=true;
             $_json->downing=false;
             $this->redis->set($this->key,json($_json));
-            
+            @unlink(SAVEPATH.$this->downfilename);
             exit(json(array("code"=>3,"msg"=>"CURL抛出异常:".$e->getMessage())));
         }
 

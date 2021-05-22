@@ -87,8 +87,20 @@ $(".download_box .download_btn button").click(function(event) {
     }
 });
 
+//输入框回车下载
+$(".rename_div .input input").keydown(function(event) {
+  /* Act on the event */
+  if(event.originalEvent.keyCode == 13){
+    sendLXDownload();
+  }
+});
+
 $(".rename_div .btn_box button").click(function(event) {
   /* Act on the event */
+  sendLXDownload();
+});
+
+function sendLXDownload(){
   let newname = $(".rename_div .input input").val();
   if(newname != ""){
     $(".rename_div").css("display","none"); //隐藏
@@ -98,7 +110,7 @@ $(".rename_div .btn_box button").click(function(event) {
     });
   }
   $(".rename_div .input input").val("");
-});
+}
 
 function SendDownload(url,json){
   let clearid = null;
