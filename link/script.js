@@ -661,6 +661,14 @@ function updatesizebar(){
           $(".dirsize .showsize .bar_box .bar").css("background","#e84118");
         }else if(used >= 80){   //当已用空间大于 80%
           $(".dirsize .showsize .bar_box .bar").css("background","#fbc531")
+        }else{
+          if(used <= 5){
+            $(".dirsize .showsize .bar_box .bar").css({"overflow":"visible","text-align":"inherit"});
+            $(".dirsize .showsize .bar_box .bar span").css({"position":"relative","left":"calc( 10px + 100%)","color":"#0097e6"});
+          }else{
+            $(".dirsize .showsize .bar_box .bar").css({"overflow":"hidden","text-align":"center"});
+            $(".dirsize .showsize .bar_box .bar span").css({"position":"static","left":"","color":"#fff"});
+          }
         }
       }
     }
