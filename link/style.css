@@ -137,7 +137,7 @@ body{
   background: #44bd32;
   text-align: center;
   transition: width 1s;
-  overflow: hidden;
+  overflow: hidden;                          /*溢出隐藏*/
 }
 
 .dirsize .showsize .bar_box .bar span{

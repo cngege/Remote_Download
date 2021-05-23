@@ -55,5 +55,6 @@
 
 /* Video Player */
 .videoplayer{
-  width: 95%;
+  left: 10%;
+  width: 80%;
 }

@@ -12,7 +12,7 @@ let exts = {
 $(function(){
   if(document.URL.indexOf("file://")==0){
     serveraddr="http://cngege.f3322.net/wget/";
-    serveraddr="http://192.168.10.10/wget/";
+    //serveraddr="http://192.168.10.10/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
   //如果下载前要重命名
