@@ -60,7 +60,7 @@ $(function(){
         if($.cookie("setrename")){
           $(".setup_form_box .setrename input").attr("checked","checked");
         }
-        $(".setup_form_box .setup_form .setcookie_text").val(window.atob($.cookie("downcookie")));
+        $(".setup_form_box .setup_form .setcookie_text").val($.cookie("downcookie")?window.atob($.cookie("downcookie")):"");
       }
     }
     startintval=0;
