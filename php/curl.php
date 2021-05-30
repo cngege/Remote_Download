@@ -6,6 +6,7 @@ class curl{
     public $urlsize;
     public $redis;
     public $key;
+    public $starttime;
     
     private $downfilename;
     
@@ -24,13 +25,14 @@ class curl{
             header("HTTP/1.1 200 OK");
             header('Content-type: application/json; charset=utf-8');
             ob_start();
+            $_ = "";
             if(isset($_GET['rename']) || $_GET['rename']!=""){
-                $_.$this->downfilename = $_GET['rename'];
+                $this->downfilename = $_GET['rename'];
             }else{
                 $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
             }
             $this->urlsize = filesize($this->url);
-            $_ = "";
+            
             while(file_exists(SAVEPATH.$_.$this->downfilename)){
                 $_.="_";
             }
@@ -41,6 +43,7 @@ class curl{
             $freesize = getfreesize();
             //如果剩余容量足够
             if($freesize > $this->urlsize){
+                $this->starttime = microtime(true)*1000;
                 $this->key = md5($this->downfilename);
                 $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
                 echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
@@ -91,7 +94,9 @@ class curl{
             $_json->fail=true;
             $_json->downing=false;
             $this->redis->set($this->key,json($_json));
+            fclose($this->fp);
             @unlink(SAVEPATH.$this->downfilename);
+            $this->redis->close();
             exit(json(array("code"=>3,"msg"=>"CURL抛出异常:".$e->getMessage())));
         }
 
@@ -106,10 +111,10 @@ class curl{
             
             $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,false);
             //$this->redis->expire($this->key,1200);//设置失效时间
-            $this->redis->close();
             
             @unlink(SAVEPATH.$this->downfilename);
             $this->redis->set("curlclose","");
+            $this->redis->close();
             return;
         }
         $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
@@ -124,8 +129,9 @@ class curl{
             "maxsize"=>$_max,               //离线下载的文件的最大大小
             "downsize"=>$_size,             //离线下载的文件当前下载的大小
             "fail"=>$_fail,                 //是否错误 停止下载
-            "close"=>false,                             //不写只读 如果为true 则中断下载
-            "downing"=>$_downing            //是否正在下载中
+            "close"=>false,                 //curl中不写只读 如果为true 则中断下载
+            "downing"=>$_downing,           //是否正在下载中
+            "starttime"=>$this->starttime
         );
         $this->redis->set($this->key,json($wdata));
         //file_put_contents(config."/".$_filename.".json",json_encode($wdata));

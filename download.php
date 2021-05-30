@@ -114,6 +114,7 @@ if($type == 'login'){
         if($redis->srem("task",$k)){
             $redis->delete($k);
         }
+        $redis->close();
         exit(json(array("code"=>1,"value"=>!file_exists(SAVEPATH.$_GET['file']))));
     }
 }else if($type == "download"){
@@ -128,13 +129,13 @@ if($type == 'login'){
         chmod(SAVEPATH.$_GET['file'],0777);
         downtoweb($_GET['file'],true);
     }
-}else if($type == "curl"){
+}else if($type == "curl"){                          //下载文件到服务器
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){
         $fcurl = new curl($_GET['url']);
         $fcurl->start();
     }
-}else if($type == "getdowninfo_one"){                //获取刚才下载的文件的进度文件
+}else if($type == "getdowninfo_one"){                //获取刚才下载的文件的进度文件[应该暂被废弃]
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){
         //$arr = array();
@@ -163,9 +164,30 @@ if($type == 'login'){
     if(isset($_GET['task'])){
         
         $redis = linkRedis();
-        $redis->set("curlclose",$_GET['task']);
-        exit(json(array("code"=>1)));
         
+        $data = dejson($redis->get($_GET['task']));
+        if($data->fail || !$data->downing){      //如果这个下载连接是错误的 或者没有在下载
+            if(!unlink($data->file)){            //删除失败
+                $exist = "删除失败";
+                if(!file_exists($data->file)){
+                    $exist = "删除失败,文件不存在";
+                }
+                $redis->close();
+                exit(json(array("code"=>3,"msg"=>$exist)));
+            }else{
+                $isok = false;
+                if($redis->srem("task",$_GET['task'])){    //同样将这个查询key删除
+                    $redis->del($_GET['task']);            //在redis中将这个key删除掉
+                    $isok = true;
+                }
+                $redis->close();
+                exit(json(array("code"=>1,"msg"=>"删除redis任务记录".$isok?"成功":"失败")));
+            }
+        }else{
+            $redis->set("curlclose",$_GET['task']);
+            $redis->close();
+            exit(json(array("code"=>1)));
+        }
     }else{
         exit(json(array("code"=>2,"msg"=>"缺少必要参数:task")));
     }
@@ -174,6 +196,21 @@ if($type == 'login'){
     if(isset($_GET['inquirykey'])){
         $redis = linkRedis();
         $_data = $redis->get($_GET['inquirykey']);
+        $data = dejson($_data);
+        if(!$data->downing){        //如果已经下载完成了
+            if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除
+                $redis->del($_GET['inquirykey']);        //如果已经下载完成了 就在redis中将这个key删除掉
+            }
+        }
+        else if($data->starttime){
+            if((microtime(true)*1000 - $data->starttime) > 1000*60*60*24 ){    //如果下载的时间已经超过了这个时间[24h] 则删除 (24h为脚本运行超时上限)
+                if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除
+                    $redis->del($_GET['inquirykey']);            //在redis中将这个key删除掉
+                    $data->fail = true;                          //告诉前端出错
+                    $_data =json($data);
+                }
+            }
+        }
         $redis->close();
         exit($_data);
     }

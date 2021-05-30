@@ -520,23 +520,24 @@ function addfileing(fevent){
             if(e.maxsize!=0){
               _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%");
             }
+            let time = Math.round((new Date().getTime() - e.starttime) / 1000);
             if(!e.downing){
-              //下载完成
+              //下载完成\
               func[i]=[]; //不再发出下载进度请求
               _e.data('type', "file");
-              _e.find('.size').text("(结束)"+ renderSize(e.maxsize));
+              _e.find('.size').text(`(结束)[${time}s])`+ renderSize(e.maxsize));
             }
             if((e.downsize == e.maxsize) && e.maxsize != 0){
               //下载完成
               func[i]=[]; //不再发出下载进度请求
               _e.data('type', "file");
-              _e.find('.size').text("(完成)"+ renderSize(e.maxsize));
+              _e.find('.size').text(`(完成)[${time}s])`+ renderSize(e.maxsize));
               //更新服务器磁盘容量
               updatesizebar();
             }else{
               //正在下载的情况下
               if(e.maxsize!=0){
-                _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+")"+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
+                _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+`)[${time}s])`+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
               }
             }
 
