@@ -1,5 +1,6 @@
-﻿# Remote_Download
- php离线下载
+# Remote_Download
+# php离线下载
+ 
 ![完成图][1]
 
 **部署文件到服务端后第一次在浏览器打开自动提示部署**
