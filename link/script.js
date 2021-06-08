@@ -16,7 +16,7 @@ $(function(){
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
   //如果下载前要重命名
-  if($.cookie("setrename")){
+  if(localStorage.getItem("wget_setrename")){
     $(".download_box .download_btn button").text('继续');
   }
 
@@ -54,20 +54,28 @@ $(function(){
       //TODO 打开设置窗口
       if($(".install").css('display')=="none"){
         $(".setup_form_box").css("display","inline");   //显示设置页窗口
-        if($.cookie("issetcookie")){
+        if(localStorage.getItem("wget_issetcookie")){
           $(".setup_form_box .setcookie input").attr("checked","checked");
         }
-        if($.cookie("setrename")){
+        if(localStorage.getItem("wget_setrename")){
           $(".setup_form_box .setrename input").attr("checked","checked");
         }
-        $(".setup_form_box .setup_form .setcookie_text").val($.cookie("downcookie")?window.atob($.cookie("downcookie")):"");
+        $(".setup_form_box .setup_form .setcookie_text").val(localStorage.getItem("wget_downcookie") || "");
       }
     }
     startintval=0;
   });
+
+
 })
 
+$(document).ready(function() {
+  //输入框自动获取焦点
+  setTimeout(()=>{
+    //$(".download_box .download_input input").focus();
+  },500);
 
+})
 
 
 
@@ -76,12 +84,14 @@ $(function(){
 //URL下载btn【点击下载按钮的事件】:
 $(".download_box .download_btn button").click(function(event) {
   /* Act on the event */
-    if($.cookie("setrename")){
+    if(localStorage.getItem("wget_setrename")){
       $(".rename_div").css("display","inline"); //显示
+      //自动获取焦点
+      $(".rename_div .input input").focus();
     }
     else{                                       //下载
       SendDownload($(".download_input input").val(),{
-        cookie:$.cookie("issetcookie")?$.cookie("downcookie"):"",
+        cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
         rename:""
       });
     }
@@ -105,7 +115,7 @@ function sendLXDownload(){
   if(newname != ""){
     $(".rename_div").css("display","none"); //隐藏
     SendDownload($(".download_input input").val(),{
-      cookie:$.cookie("issetcookie")?$.cookie("downcookie"):"",
+      cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
       rename:newname
     });
   }
@@ -260,19 +270,30 @@ $(".setup_form_box .btn_box .logout").click(function(event) {
 //关闭设置设窗口按钮
 $(".setup_form_box .btn_box .form_close").click(function(event) {
   /* Act on the event */
-  $.cookie("downcookie",window.btoa($(".setup_form_box .setup_form .setcookie_text").val()))
+  localStorage.setItem("wget_downcookie",$(".setup_form_box .setup_form .setcookie_text").val());
   $(".setup_form_box").hide();
 });
+
+//是否重写M3U8文件切换按钮被点击
+$(".setup_form_box .rewritem3u8 input[type='checkbox']").click(function(event) {
+  /* Act on the event */
+  if($(this).is(':checked')){
+    localStorage.setItem("wget_rewritem3u8","1");        //localStorage 存储
+  }else{
+    localStorage.setItem("wget_rewritem3u8","");
+  }
+});
+
 
 //是否重命名switch被点击
 $(".setup_form_box .setrename input[type='checkbox']").click(function(event) {
   /* Act on the event */
   if($(this).is(':checked')){
-    $.cookie("setrename","1");
+    localStorage.setItem("wget_setrename","1");
     //原本的下载按钮名称变为:重命名
     $(".download_box .download_btn button").text('继续');
   }else{
-    $.cookie("setrename","");
+    localStorage.setItem("wget_setrename","");
     $(".download_box .download_btn button").text('下载');
   }
 
@@ -283,9 +304,9 @@ $(".setup_form_box .setrename input[type='checkbox']").click(function(event) {
 $(".setup_form_box .setcookie input[type='checkbox']").click(function(event) {
   /* Act on the event */
   if($(this).is(':checked')){
-    $.cookie("issetcookie",1);
+    localStorage.setItem("wget_issetcookie","1");
   }else{
-    $.cookie("issetcookie","");
+    localStorage.setItem("wget_issetcookie","");
   }
 
 });
@@ -322,6 +343,8 @@ $(".fileinfo_box .fileinfo_close").click(function(event) {
 $(".rename_div .closebtn").click(function(event) {
   /* Act on the event */
   $(".rename_div").css("display","none"); //隐藏
+  //原始URL输入框自动获取焦点
+  $(".download_box .download_input input").focus();
 });
 
 

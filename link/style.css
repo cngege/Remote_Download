@@ -171,6 +171,7 @@ body{
   outline: none;
   border: 0;
   background-color: transparent;
+  caret-color: #4cd137;                            /*输入框 光标颜色*/
 }
 
 .download_box .download_btn{
@@ -513,8 +514,7 @@ body{
 }
 
 
-.setup_form_box .setrename,     /* 指定下载文件是否要手动重命名 */
-.setup_form_box .setcookie      /* 指定设置Cookie box */
+.setup_form_box .switch_box      /* 指定下载文件是否要手动重命名,指定设置Cookie box */
 {
   padding: 0;
   margin: 0;
@@ -524,8 +524,7 @@ body{
   /* background: #000; */
 }
 
-.setup_form_box .setrename_switch,     /* 设置重命名选择器switch样式 */
-.setup_form_box .setcookie_switch      /* 设置"设置Cookie" 选择器样式 */
+.setup_form_box .switch     /* 设置"设置Cookie" 选择器样式, 设置重命名选择器switch样式 */
 {
   position: absolute;
   top: 50%;
@@ -533,8 +532,7 @@ body{
   transform: translateY(-50%);
 }
 
-.setup_form_box .setrename .text,
-.setup_form_box .setcookie .text{
+.setup_form_box .switch_box .text{
   line-height: 50px;
   font-weight: bold;
 }
@@ -940,6 +938,7 @@ body{
 .rename_div .input{
   width: 100%;
   border-bottom: 2px solid #44bd32;
+  caret-color: #4cd137;                            /*输入框 光标颜色*/
 }
 
 .rename_div .input input{

@@ -141,8 +141,16 @@
     <!-- 点击设置按钮之后出现的窗口 -->
     <div class="setup_form_box" style="display:none">
       <div class="setup_form">
+        <!-- 下载时自动更正M3U8文件格式 -->
+        <div class="switch_box rewritem3u8">
+          <span class="text">下载时自动更正M3U8文件格式</span>
+          <label id="rewritem3u8_switch" class="switch rewritem3u8_switch">
+            <input type="checkbox">
+            <div class="line"><span></span></div>
+          </label>
+        </div>
         <!-- 设置下载文件是否要手动重新命名 -->
-        <div class="setrename">
+        <div class="switch_box setrename">
           <span class="text">指定下载文件是否重命名</span>
           <label id="setrename_switch" class="switch setrename_switch">
             <input type="checkbox">
@@ -150,7 +158,7 @@
           </label>
         </div>
         <!-- 设置页面中setcookie部分 -->
-        <div class="setcookie">
+        <div class="switch_box setcookie">
           <span class="text">指定离线下载Cookie</span>
           <label id="setcookie_switch" class="switch setcookie_switch">
             <input type="checkbox">
