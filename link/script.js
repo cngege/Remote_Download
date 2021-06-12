@@ -447,7 +447,7 @@ function addfileing(fevent){
   //将模板节点复制出来处理
   let d = $(".copyright .download").clone(true);
   d.css("display","");
-  if(fevent.value){d.data('data', fevent.value)}  //只有当value存在的时候 才添加值到data
+  if(fevent.value){d.data('data', JSON.parse(fevent.value))}  //只有当value存在的时候 才添加值到data
   d.data('type', "downinfo");
 
   let CEvent = {open:function(event){

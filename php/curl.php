@@ -62,7 +62,7 @@ class curl{
                 curl_setopt($ch, CURLOPT_FILE, $this->fp);
                 //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
                 if(isset($_GET['downcookie'])){
-                    curl_setopt($ch, CURLOPT_COOKIE, @base64_decode($_GET['downcookie']));
+                    curl_setopt($ch, CURLOPT_COOKIE, $_GET['downcookie']);
                 }
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
                 curl_setopt ($ch, CURLOPT_REFERER, $this->url);

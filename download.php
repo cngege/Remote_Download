@@ -199,7 +199,7 @@ if($type == 'login'){
         $data = dejson($_data);
         if(!$data->downing){        //如果已经下载完成了
             if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除
-                $redis->del($_GET['inquirykey']);        //如果已经下载完成了 就在redis中将这个key删除掉
+                $redis->expire($_GET['inquirykey'],5);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为5s
             }
         }
         else if($data->starttime){
