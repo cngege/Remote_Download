@@ -162,9 +162,7 @@ if($type == 'login'){
 }else if($type == "deldowntask"){//删除下载任务
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['task'])){
-        
         $redis = linkRedis();
-        
         $data = dejson($redis->get($_GET['task']));
         if($data->fail || !$data->downing){      //如果这个下载连接是错误的 或者没有在下载
             if(!unlink($data->file)){            //删除失败

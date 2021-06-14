@@ -185,6 +185,9 @@ function SendDownload(url,json){
     if(json.rename){
       senddata.rename = json.rename;
     }
+    if(localStorage.getItem("wget_rewritem3u8")){
+      senddata.rewritem3u8 = "1";
+    }
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
       data: senddata,

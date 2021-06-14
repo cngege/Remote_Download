@@ -2,7 +2,6 @@
 class curl{
     public $url;
     public $fp;
-    //public $fpjson;
     public $urlsize;
     public $redis;
     public $key;
@@ -44,7 +43,7 @@ class curl{
             //如果剩余容量足够
             if($freesize > $this->urlsize){
                 $this->starttime = microtime(true)*1000;
-                $this->key = md5($this->downfilename);
+                $this->key = md5($this->downfilename.$this->starttime);
                 $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
                 echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
                 
@@ -58,6 +57,7 @@ class curl{
                 $this->write($this->url,$this->downfilename,null,null,false,true);
                 
                 $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
+
                 $ch = curl_init($this->url);
                 curl_setopt($ch, CURLOPT_FILE, $this->fp);
                 //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
@@ -65,7 +65,7 @@ class curl{
                     curl_setopt($ch, CURLOPT_COOKIE, $_GET['downcookie']);
                 }
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-                curl_setopt ($ch, CURLOPT_REFERER, $this->url);
+                curl_setopt($ch, CURLOPT_REFERER, $this->url);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
                 curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, array($this, "progress"));
                 curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1); // 302 跳转
@@ -118,6 +118,30 @@ class curl{
             return;
         }
         $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
+        if($countDownloadSize == $currentDownloadSize){
+            //下载完成
+            if(isset($_GET['rewritem3u8']) && @$_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
+                //重写m3u8
+                //$m3u8_data = file_get_contents(SAVEPATH.$this->downfilename);
+                $m3u8_data = fread($this->fp, filesize ($filename));
+                $m3u8 = explode(PHP_EOL,$m3u8_data);
+                $newm3u8_data = "";
+                foreach ($m3u8 as $i => $line) {
+                    //print($i . '.' . $line . PHP_EOL);
+                    if(substr($line, 0, strlen("http")) === "http" || substr($line, 0 , 1) == "#" || trim($line) == ""){    //http or https
+                        $newm3u8_data .= $line . PHP_EOL;
+                    }else if(substr($line, 0 , 1) == "/"){    // 左斜杠开头
+                        $rs = parse_url($this->url);
+                        $newm3u8_data .= $rs["scheme"]?($rs["scheme"]."://"):"http://" . $rs["host"] . $line . PHP_EOL;
+                    }else{
+                        $newm3u8_data .= substr($this->url,0,strrpos($url,"/")+1) . $line . PHP_EOL;
+                    }
+                }
+                fseek($this->fp,0);
+                fwrite($this->fp,$newm3u8_data);
+                //file_put_contents(SAVEPATH.$this->downfilename,$newm3u8_data);
+            }
+        }
         
     }
     
