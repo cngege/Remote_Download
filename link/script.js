@@ -396,7 +396,10 @@ $(".rename_div .closebtn").click(function(event) {
   /* Act on the event */
   $(".rename_div").css("display","none"); //隐藏
   //原始URL输入框自动获取焦点
-  $(".download_box .download_input input").focus();
+  if(window.screen.width >= 768){
+    $(".download_box .download_input input").focus();
+  }
+
 });
 
 
