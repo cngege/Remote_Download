@@ -126,6 +126,29 @@ $(".download_box .download_btn button").click(function(event) {
     }
 });
 
+//移动端长按下载按钮的时候
+//长按事件触发
+var timeout = undefined;
+$(".download_box .download_btn button").on('touchstart',function(e){
+  timeout = setTimeout(function() {
+    if(localStorage.getItem("wget_setrename")){
+      SendDownload($(".download_input input").val(),{
+        cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
+        rename:""
+      });
+    }else{
+      $(".rename_div").css("display","inline"); //显示
+      //自动获取焦点
+      $(".rename_div .input input").focus();
+    }
+  }, 1000);
+})
+
+$(".download_box .download_btn button").on('touchend',function(e){
+  clearTimeout(timeout);
+})
+
+
 //输入框回车下载
 $(".rename_div .input input").keydown(function(event) {
   /* Act on the event */
