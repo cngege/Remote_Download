@@ -458,7 +458,7 @@ function addfileok(fevent){
       $(".fileinfo_box").css("display","inline"); //显示文件详细信息窗口
       $(".fileinfo_box .inner .fname span").text(fevent.filename);  //修改窗口中显示的文件名
       $(".fileinfo_box .inner .fsize span").text(renderSize(fevent.filesize)+" - "+fevent.filesize+"byte");
-      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e)});
+      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e);$(".fileinfo_box").css("display","none")});
       $(".fileinfo_box .inner #download").unbind("click").click(function(e){CEvent.download(e)});
       $(".fileinfo_box .inner #delete").unbind("click").click(function(e){CEvent.delete(e)});
 
@@ -537,7 +537,7 @@ function addfileing(fevent){
       $(".fileinfo_box").css("display","inline"); //显示文件详细信息窗口
       $(".fileinfo_box .inner .fname span").text(d.data("data").filename);  //修改窗口中显示的文件名
       $(".fileinfo_box .inner .fsize span").text(renderSize(d.data("data").maxsize)+" - "+d.data("data").maxsize+"byte");
-      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e)});
+      $(".fileinfo_box .inner #open").unbind("click").click(function(e){CEvent.open(e);$(".fileinfo_box").css("display","none")});
       $(".fileinfo_box .inner #download").unbind("click").click(function(e){CEvent.download(e)});
       $(".fileinfo_box .inner #delete").unbind("click").click(function(e){CEvent.delete(e)});
 
