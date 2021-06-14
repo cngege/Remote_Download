@@ -2,6 +2,7 @@
 //let serveraddr="http://jp-tyo-dvm-2.sakurafrp.com:26292/wget/";
 let serveraddr="";
 let func = [];
+let ctrl_keydown = false;
 //let player;
 let exts = {
   img:["png","jpg","jpeg","gif","webp"],
@@ -69,14 +70,29 @@ $(function(){
 
 })
 
-$(document).ready(function() {
-  //输入框自动获取焦点
-  setTimeout(()=>{
-    //$(".download_box .download_input input").focus();
-  },500);
-
+//当按下CTRL键的时候 变化下载按钮的效果
+$(document).on("keydown",function(e){
+  if(e.which == 17){  //ctrl
+    ctrl_keydown = true;
+    if(localStorage.getItem("wget_setrename")){ //按下之前 本地记录是重命名
+      $(".download_box .download_btn button").text('下载');
+    }else{
+      $(".download_box .download_btn button").text('继续');
+    }
+  }
 })
 
+$(document).on("keyup",function(e){
+  if(e.which == 17){  //ctrl
+    ctrl_keydown = false;
+    if(localStorage.getItem("wget_setrename")){ //按下之前 本地记录是重命名
+      $(".download_box .download_btn button").text('继续');
+
+    }else{
+      $(".download_box .download_btn button").text('下载');
+    }
+  }
+})
 
 
 
@@ -85,15 +101,28 @@ $(document).ready(function() {
 $(".download_box .download_btn button").click(function(event) {
   /* Act on the event */
     if(localStorage.getItem("wget_setrename")){
-      $(".rename_div").css("display","inline"); //显示
-      //自动获取焦点
-      $(".rename_div .input input").focus();
+      if(ctrl_keydown){ //按下了ctrl 本来是重命名 取反 后直接下载
+        SendDownload($(".download_input input").val(),{
+          cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
+          rename:""
+        });
+      }else{            //没有按下ctrl 本来是重命名 不取反 显示重命名
+        $(".rename_div").css("display","inline"); //显示
+        //自动获取焦点
+        $(".rename_div .input input").focus();
+      }
     }
     else{                                       //下载
-      SendDownload($(".download_input input").val(),{
-        cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
-        rename:""
-      });
+      if(ctrl_keydown){ //按下ctrl 本来不重命名 取反 重命名下载
+        $(".rename_div").css("display","inline"); //显示
+        //自动获取焦点
+        $(".rename_div .input input").focus();
+      }else{            //没有按下ctrl 本来不是重命名 不取反 直接下载
+        SendDownload($(".download_input input").val(),{
+          cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
+          rename:""
+        });
+      }
     }
 });
 
