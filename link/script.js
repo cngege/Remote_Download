@@ -55,6 +55,9 @@ $(function(){
       //TODO 打开设置窗口
       if($(".install").css('display')=="none"){
         $(".setup_form_box").css("display","inline");   //显示设置页窗口
+        if(localStorage.getItem("wget_rewritem3u8")){
+          $(".setup_form_box .rewritem3u8 input").attr("checked","checked");
+        }
         if(localStorage.getItem("wget_issetcookie")){
           $(".setup_form_box .setcookie input").attr("checked","checked");
         }

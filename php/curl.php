@@ -72,13 +72,16 @@ class curl{
                 curl_exec($ch);
                 if (curl_errno($ch)) {//如果发生了错误
                     $this->write($this->url,$this->downfilename,$this->urlsize,null,true,false);
+                    curl_close($ch);
+                    fclose($this->fp);
                 }else{
+                    curl_close($ch);
+                    fclose($this->fp);
                     $_json = dejson($this->redis->get($this->key));
                     $_json->downing=false;
+                    $this->rewrite_m3u8();
                     $this->redis->set($this->key,json($_json));
                 }
-                curl_close($ch);
-                fclose($this->fp);
                 $this->redis->close();
             }else{
                 echo json(array("code"=>3,"msg"=>"目录容量不足无法下载该文件,剩余:".round($freesize/1024/1024,2)."MB"));    //返回前端，容量不足 不下载
@@ -118,31 +121,6 @@ class curl{
             return;
         }
         $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
-        if($countDownloadSize == $currentDownloadSize){
-            //下载完成
-            if(isset($_GET['rewritem3u8']) && @$_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
-                //重写m3u8
-                //$m3u8_data = file_get_contents(SAVEPATH.$this->downfilename);
-                $m3u8_data = fread($this->fp, filesize ($filename));
-                $m3u8 = explode(PHP_EOL,$m3u8_data);
-                $newm3u8_data = "";
-                foreach ($m3u8 as $i => $line) {
-                    //print($i . '.' . $line . PHP_EOL);
-                    if(substr($line, 0, strlen("http")) === "http" || substr($line, 0 , 1) == "#" || trim($line) == ""){    //http or https
-                        $newm3u8_data .= $line . PHP_EOL;
-                    }else if(substr($line, 0 , 1) == "/"){    // 左斜杠开头
-                        $rs = parse_url($this->url);
-                        $newm3u8_data .= $rs["scheme"]?($rs["scheme"]."://"):"http://" . $rs["host"] . $line . PHP_EOL;
-                    }else{
-                        $newm3u8_data .= substr($this->url,0,strrpos($url,"/")+1) . $line . PHP_EOL;
-                    }
-                }
-                fseek($this->fp,0);
-                fwrite($this->fp,$newm3u8_data);
-                //file_put_contents(SAVEPATH.$this->downfilename,$newm3u8_data);
-            }
-        }
-        
     }
     
     public function write($_url,$_filename,$_max,$_size,$_fail=false,$_downing=true){
@@ -159,6 +137,29 @@ class curl{
         );
         $this->redis->set($this->key,json($wdata));
         //file_put_contents(config."/".$_filename.".json",json_encode($wdata));
+    }
+    
+    public function rewrite_m3u8(){
+        //file_put_contents("/U/Download/1.txt","1");
+        if(isset($_GET['rewritem3u8']) && $_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
+            //重写m3u8
+            $m3u8_data = file_get_contents(SAVEPATH.$this->downfilename);
+            //$m3u8_data = fread($this->fp, filesize ($filename));
+            $m3u8 = explode("\n",$m3u8_data);
+            $newm3u8_data = "";
+            foreach ($m3u8 as $i => $line) {
+                //print($i . '.' . $line . PHP_EOL);
+                if(substr($line, 0, strlen("http")) === "http" || substr($line, 0 , 1) == "#" || trim($line) == ""){    //http or https
+                    $newm3u8_data .= $line . "\n";
+                }else if(substr($line, 0 , 1) == "/"){    // 左斜杠开头
+                    $rs = parse_url($this->url);
+                    $newm3u8_data .= ($rs["scheme"]?($rs["scheme"]."://"):("http://")) . $rs["host"] . $line . "\n";
+                }else{
+                    $newm3u8_data .= substr($this->url,0,strrpos($this->url,"/")+1) . $line . "\n";
+                }
+            }
+            file_put_contents(SAVEPATH.$this->downfilename,$newm3u8_data);
+        }
     }
 }
 
