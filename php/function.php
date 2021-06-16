@@ -292,3 +292,47 @@ function getmaxsize(){
 function getfreesize(){
     return disk_free_space(SAVEPATH);
 }
+
+function rewrite_m3u8($path,$durl){
+    //file_put_contents("/U/Download/1.txt","1");
+    //重写m3u8
+    $m3u8 = explode("\n",file_get_contents($path));
+    $m3u8_data = "";
+    foreach ($m3u8 as $i => $line) {
+        //print($i . '.' . $line . PHP_EOL);
+        if(substr($line, 0, strlen("http")) === "http" || substr($line, 0 , 1) == "#" || trim($line) == ""){    //http or https
+            if(substr($line, 0, strlen("#EXT-X-KEY:")) === "#EXT-X-KEY:"){//KEY
+                $pos = strpos($line,'URI="');
+                if($pos === false){                //不是 URL="
+                    $pos = strpos($line,'URI=');
+                    if($pos === false){            //也不是 URL=
+                        continue;
+                    }else{
+                        $pos += 4;
+                    }
+                }
+                else{
+                    $pos += 5;
+                }
+                $lstr = substr($line,0,$pos);
+                $rstr = substr($line, $pos , strlen($line) - $pos);
+                if(substr($rstr, 0 , 1) == "/"){    //左斜杠开头
+                    $rs = parse_url($durl);
+                    $m3u8_data .= $lstr . ($rs["scheme"]?($rs["scheme"]."://"):("http://")) . $rs["host"] . $rstr . "\n";
+                }else if(substr($line, 0, strlen("http")) === "http"){
+                    $m3u8_data .= $line . "\n";
+                }else{
+                    $m3u8_data .= $lstr . substr($durl,0,strrpos($durl,"/")+1) . $rstr . "\n";
+                }
+            }else{
+                $m3u8_data .= $line . "\n";
+            }
+        }else if(substr($line, 0 , 1) == "/"){    // 左斜杠开头
+            $rs = parse_url($durl);
+            $m3u8_data .= ($rs["scheme"]?($rs["scheme"]."://"):("http://")) . $rs["host"] . $line . "\n";
+        }else{
+            $m3u8_data .= substr($durl,0,strrpos($durl,"/")+1) . $line . "\n";
+        }
+    }
+    file_put_contents($path,$m3u8_data);
+}
