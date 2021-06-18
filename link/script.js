@@ -609,7 +609,7 @@ function addfileing(fevent){
               //下载完成\
               func[i]=[]; //不再发出下载进度请求
               _e.data('type', "file");
-              _e.find('.size').text(`(结束)[${time}s])`+ renderSize(e.maxsize));
+              _e.find('.size').text(`(结束)[${time}s])`+ renderSize(e.maxsize||e.downsize));
             }
             if((e.downsize == e.maxsize) && e.maxsize != 0){
               //下载完成
