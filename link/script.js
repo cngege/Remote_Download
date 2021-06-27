@@ -658,7 +658,7 @@ function renderSize(value){
 }
 
 function opennew(data){
-  let ext = data.filename.substr(data.filename.lastIndexOf(".")+1);
+  let ext = data.filename.substr(data.filename.lastIndexOf(".")+1).toLowerCase();
   let newopen = true;
   $.each(exts.img, function(index, el) {
     if(ext == el){
