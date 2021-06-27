@@ -8,6 +8,8 @@ class curl{
     public $starttime;
     
     private $downfilename;
+    private $name;
+    private $ext;    //.mp4
     
     public function __construct($_url){
         $this->url = $_url;
@@ -24,20 +26,33 @@ class curl{
             header("HTTP/1.1 200 OK");
             header('Content-type: application/json; charset=utf-8');
             ob_start();
-            $_ = "";
+            $num = 0;
             if(isset($_GET['rename']) || $_GET['rename']!=""){
                 $this->downfilename = $_GET['rename'];
             }else{
                 $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
             }
             $this->urlsize = filesize($this->url);
-            
-            while(file_exists(SAVEPATH.$_.$this->downfilename)){
-                $_.="_";
+            if(file_exists(SAVEPATH.$this->downfilename)){
+                //要下载的文件本地已经存在了
+                //进行重命名
+                $doc = strrpos($this->downfilename,".");
+                if($doc !== false){
+                    $this->name = substr($this->downfilename,0,$doc);
+                    $this->ext = substr($this->downfilename,$doc);
+                    while(file_exists(SAVEPATH.$this->name."[".$num."]".$this->ext)){
+                        $num++;
+                    }
+                    $this->downfilename = urldecode($this->name."[".$num."]".$this->ext);
+                }else{
+                    while(file_exists(SAVEPATH.$this->downfilename."[".$num."]")){
+                        $num++;
+                    }
+                    //URL 解码
+                    $this->downfilename = urldecode($this->downfilename."[".$num."]");    //最后确认要保存到本地的文件名
+                }
             }
-            //URL 解码 + "_"前缀
-            $this->downfilename = urldecode($_.$this->downfilename);    //最后确认要保存到本地的文件名
-            
+
             $maxsize = getmaxsize();
             $freesize = getfreesize();
             //如果剩余容量足够
@@ -78,6 +93,9 @@ class curl{
                     curl_close($ch);
                     fclose($this->fp);
                     $_json = dejson($this->redis->get($this->key));
+                    if(!$_json->downsize){
+                        $_json->downsize = filesize(SAVEPATH.$this->downfilename);
+                    }
                     $_json->downing=false;
                     //$this->rewrite_m3u8();
                     if(isset($_GET['rewritem3u8']) && $_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
