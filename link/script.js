@@ -151,6 +151,13 @@ $(".download_box .download_btn button").on('touchend',function(e){
   clearTimeout(timeout);
 })
 
+//输入框回车键下载
+$(".download_input input").keydown(function(event) {
+  /* Act on the event */
+  if(event.originalEvent.keyCode == 13){
+    $(".download_box .download_btn button").click();
+  }
+});
 
 //输入框回车下载
 $(".rename_div .input input").keydown(function(event) {
@@ -200,7 +207,7 @@ function SendDownload(url,json){
           if(ve.value){
             //{value:json数据,json:JSON路径}
             addfileing({key:ve.key});
-            input.val('');
+            $(".download_input input").val('');
             $.jqAlert({content:"已建立下载任务",type:"success"});
           }
         }
@@ -442,6 +449,7 @@ function addfileok(fevent){
     $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
   },delete:function(event){
     let eve = d.data("data");
+    $.jqAlert({content:"正在删除……",type:"info"});
     $.ajax({
       url:serveraddr+"download.php",
       data:{type:"delfile",file:eve.filename},
@@ -521,22 +529,23 @@ function addfileing(fevent){
       $("#downiframe").attr('src', serveraddr+"download.php?type=download&file="+eve.filename);
   },delete:function(event){
     let eve = d.data("data");
-      $.ajax({
-        url:serveraddr+"download.php",
-        data:{type:"delfile",file:eve.filename},
-        success:function(del_data){
-          if(code(del_data)){
-            if(del_data.value){
-              d.hide("normal");
-              $(".fileinfo_box").hide();
-            }else{
-              $.jqAlert({content:"删除失败",type:"warning"});
-            }
-            //更新服务器磁盘容量
-            updatesizebar();
+    $.jqAlert({content:"正在删除……",type:"info"});
+    $.ajax({
+      url:serveraddr+"download.php",
+      data:{type:"delfile",file:eve.filename},
+      success:function(del_data){
+        if(code(del_data)){
+          if(del_data.value){
+            d.hide("normal");
+            $(".fileinfo_box").hide();
+          }else{
+            $.jqAlert({content:"删除失败",type:"warning"});
           }
+          //更新服务器磁盘容量
+          updatesizebar();
         }
-      })
+      }
+    })
   }}
   let showinfo = function (event){
     if($(".box_body").css("width") == $("body").css("width")){
