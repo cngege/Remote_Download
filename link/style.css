@@ -921,6 +921,7 @@ body{
   background: #fff;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   padding: 20px 10px 10px 10px;
+  z-index: 100;
 }
 
 .rename_div .closebtn{
