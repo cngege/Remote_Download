@@ -166,6 +166,9 @@ function downtoweb($_name,$_isstream = false){
         }else if(in_array(strtolower($ext),array("png","jpg","jpeg","gif","webp"))){      //如果是图片
             header('Content-type:image/'.$ext);
             header_remove("Accept-Ranges");
+        }else if(strtolower($ext) == "m3u8"){
+            header_remove("Accept-Ranges");
+            header('content-type:application/vnd.apple.mpegURL');
         }
         
         //如果前端要求Range
