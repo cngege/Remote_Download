@@ -214,11 +214,16 @@ function downtoweb($_name,$_isstream = false){
     }
 }
 
-
+//取文本右边
+function GetRstr($str,$findstr,$pos=0){
+	$onepos=strpos($str,$findstr,$pos);
+	return substr($str,$onepos+strlen($findstr));
+}
 
 //文本过长 则取后60位
 function basename2($_link){
-    $web = geturlname($_link);
+    $headers = get_headers($_link,true);
+    $web = geturlname($_link,false,$headers);
     $web = str_replace("/","_",str_replace("\\","_",$web));
     if($web){
         return $web; 
@@ -231,23 +236,58 @@ function basename2($_link){
         if(strlen($name)>100){
             $name = substr( $name, -60 );
         }
-        return str_replace('&',"",$name);
+        $name=str_replace('&',"",$name);
+        if(!haspointfilename($name)){    //如果不是*.*格式
+            $Ctype = $headers['Content-Type'];
+            if($Ctype){
+                $ext = GetRstr($Ctype,"/");
+                if($ext=="vnd.apple.mpegURL"){
+                    $ext="m3u8";
+                }
+                if($ext){
+                    return $name.".".$ext;
+                }
+            }
+        }
+        return $name;
     }
 }
 
-function geturlname($_url,$from302=false){
-    $headers = get_headers($_url,true);
+//文件名字符串中是否是*.*格式
+function haspointfilename($name){
+    $pos = strpos($name,".");
+    if($pos!==false&&$pos!=0&&$pos!=strlen($name)-1){    //有点
+        return true;
+    }else {
+        return false;
+    }
+}
+
+function geturlname($_url,$from302=false,$header=null){
+    $headers = $header || get_headers($_url,true);
     //$load = $headers['Location'];
     //exit(json(array("code"=>3,"msg"=>$load)));
     if(!empty($headers['Location'])){//如果有302跳转
         return geturlname($headers['Location'],true);
     }else{
         $reheader = $headers['Content-Disposition'];
-        if(isset($reheader)){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
+        if(isset($headers['Content-Disposition'])){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
             $reDispo = '/.*filename=(([\'\"]).*?\2|[^;\n]*)/m';
             if (preg_match($reDispo, $reheader, $mDispo))
             {
                 $filename = trim($mDispo[1],' ";'); //移除字符串中所含有的这些字符
+                if(!haspointfilename($filename)){    //如果不是*.*格式
+                    $Ctype = $headers['Content-Type'];
+                    if($Ctype){
+                        $ext = GetRstr($Ctype,"/");
+                        if($ext=="vnd.apple.mpegURL"){
+                            $ext="m3u8";
+                        }
+                        if($ext){
+                            return $filename.".".$ext;
+                        }
+                    }
+                }
                 return $filename;
             }
         }else if($from302){                    //看是不是被302跳转过
@@ -262,7 +302,20 @@ function geturlname($_url,$from302=false){
             if(strlen($name)>60){
                 $name = substr( $name, -60 );
             }
-            return str_replace('&',"",$name);
+            $name=str_replace('&',"",$name);
+            if(!haspointfilename($name)){    //如果不是*.*格式
+                $Ctype = $headers['Content-Type'];
+                if($Ctype){
+                    $ext = GetRstr($Ctype,"/");
+                    if($ext=="vnd.apple.mpegURL"){
+                        $ext="m3u8";
+                    }
+                    if($ext){
+                        return $name.".".$ext;
+                    }
+                }
+            }
+            return $name;
         }else{
             return false;
         }
