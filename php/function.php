@@ -226,7 +226,7 @@ function basename2($_link){
     $web = geturlname($_link,false,$headers);
     $web = str_replace("/","_",str_replace("\\","_",$web));
     if($web){
-        return $web; 
+        return unescape($web); 
     }else{
         $name = basename($_link);
         $sp = strrpos($name,"?");
@@ -245,11 +245,11 @@ function basename2($_link){
                     $ext="m3u8";
                 }
                 if($ext){
-                    return $name.".".$ext;
+                    return unescape($name).".".$ext;
                 }
             }
         }
-        return $name;
+        return unescape($name);
     }
 }
 
@@ -391,4 +391,37 @@ function rewrite_m3u8($path,$durl){
         }
     }
     file_put_contents($path,$m3u8_data);
+}
+
+function unescape($str) { //这个是解密用的
+         $str = rawurldecode($str); 
+         preg_match_all("/%u.{4}|&#x.{4};|&#d+;|.+/U",$str,$r); 
+         $ar = $r[0]; 
+         foreach($ar as $k=>$v) { 
+                  if(substr($v,0,2) == "%u") 
+                           $ar[$k] = iconv("UCS-2","GBK",pack("H4",substr($v,-4))); 
+                  elseif(substr($v,0,3) == "&#x") 
+                           $ar[$k] = iconv("UCS-2","GBK",pack("H4",substr($v,3,-1))); 
+                  elseif(substr($v,0,2) == "&#") { 
+                           $ar[$k] = iconv("UCS-2","GBK",pack("n",substr($v,2,-1))); 
+                  } 
+         } 
+         return join("",$ar); 
+}
+ 
+function phpescape($str){//这个是加密用的
+    preg_match_all("/[\x80-\xff].|[\x01-\x7f]+/",$str,$newstr);
+    $ar = $newstr[0];
+    foreach($ar as $k=>$v){
+        if(ord($ar[$k])>=127){
+            $tmpString=bin2hex(iconv("GBK","ucs-2",$v));
+            if (!eregi("WIN",PHP_OS)){
+                $tmpString = substr($tmpString,2,2).substr($tmpString,0,2);
+            }
+            $reString.="%u".$tmpString;
+        } else {
+            $reString.= rawurlencode($v);
+        }
+    }
+    return $reString;
 }
