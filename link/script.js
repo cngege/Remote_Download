@@ -151,6 +151,15 @@ $(".download_box .download_btn button").on('touchend',function(e){
   clearTimeout(timeout);
 })
 
+//登录输入框回车键下载
+$(".login .inputpasswd input").keydown(function(event) {
+  /* Act on the event */
+  if(event.originalEvent.keyCode == 13){
+    $(".login button").click();
+  }
+});
+
+
 //输入框回车键下载
 $(".download_input input").keydown(function(event) {
   /* Act on the event */
