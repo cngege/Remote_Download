@@ -645,6 +645,7 @@ function addfileing(fevent){
 
           }else{
             func[i]=[]; //不再发出下载进度请求
+            _e.data('type', "file");
             _e.find('.name').text(e.filename);
             _e.find('.size').text("Download Error");
           }
