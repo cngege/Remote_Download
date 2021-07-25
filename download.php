@@ -132,7 +132,7 @@ if($type == 'login'){
 }else if($type == "curl"){                          //下载文件到服务器
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){
-        $fcurl = new curl($_GET['url']);
+        $fcurl = new curl(trim($_GET['url']));
         $fcurl->start();
     }
 }else if($type == "getdowninfo_one"){                //获取刚才下载的文件的进度文件[应该暂被废弃]
