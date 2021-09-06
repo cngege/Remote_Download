@@ -639,7 +639,7 @@ function addfileing(fevent){
             }else{
               //正在下载的情况下
               if(e.maxsize!=0){
-                _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+`)[${time}s])`+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
+                _e.find('.size').text("("+Math.round(e.downsize/e.maxsize * 100)+"%"+`)[${time}s]`+renderSize(e.downsize) + "/" + renderSize(e.maxsize));
               }
             }
 
