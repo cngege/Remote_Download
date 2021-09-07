@@ -622,7 +622,13 @@ function addfileing(fevent){
             if(e.maxsize!=0){
               _e.find(".downloadbar").css("width",Math.round(e.downsize/e.maxsize * 100)+"%");
             }
-            let time = Math.round((new Date().getTime() - e.starttime) / 1000);
+            let time;
+            if(!e.endtime){
+                time = Math.round((new Date().getTime() - e.starttime) / 1000);
+            }else{
+                time = Math.round((e.endtime - e.starttime) / 1000);
+            }
+
             if(!e.downing){
               //下载完成\
               func[i]=[]; //不再发出下载进度请求

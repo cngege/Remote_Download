@@ -97,6 +97,7 @@ class curl{
                     if(!$_json->downsize){
                         $_json->downsize = filesize(SAVEPATH.$this->downfilename);
                     }
+                    if($_json->endtime==0)$_json->endtime=microtime(true)*1000;
                     $_json->downing=false;
                     //$this->rewrite_m3u8();
                     if(isset($_GET['rewritem3u8']) && $_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
@@ -115,9 +116,10 @@ class curl{
             
 
         }catch(Exception $e){
-            $_json = dejson($this->redis->get($this->key));
+            $_json=dejson($this->redis->get($this->key));
             $_json->fail=true;
             $_json->downing=false;
+            $_json->endtime=microtime(true)*1000;
             $this->redis->set($this->key,json($_json));
             fclose($this->fp);
             @unlink(SAVEPATH.$this->downfilename);
@@ -153,7 +155,8 @@ class curl{
             "fail"=>$_fail,                 //是否错误 停止下载
             "close"=>false,                 //curl中不写只读 如果为true 则中断下载
             "downing"=>$_downing,           //是否正在下载中
-            "starttime"=>$this->starttime
+            "starttime"=>$this->starttime,
+            "endtime"=>$_downing?($_fail?microtime(true)*1000:0):microtime(true)*1000 //结束时间,如果下载中就是0,下载结束就是结束的时间
         );
         $this->redis->set($this->key,json($wdata));
         //file_put_contents(config."/".$_filename.".json",json_encode($wdata));

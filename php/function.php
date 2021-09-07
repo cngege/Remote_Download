@@ -87,7 +87,6 @@ function getdirfile(){
     $arrno = array();               //正在下载中的文件集合
     $_json = array();
     
-    
     foreach($temp as $_v){
         if(!is_dir($_v)){
             //取文件所在目录：dirname($v)
@@ -108,12 +107,15 @@ function getdirfile(){
             $k = md5($_v);
             if($redis->sismember("task",$k)){  //判断是否是集合中的成员 如果是
                 $val = $redis->get($k);
-                if($val && dejson($val)->downing){
+                //if($val && dejson($val)->downing){
+                if($val){
                     array_push($arrno,array(
                         "value"=>$val,
                         "key"=>$k
                     ));
                     continue;
+                }else{
+                    $redis->srem("task",$k);                  //从数组中移除这个元素
                 }
             }
             

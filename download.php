@@ -112,6 +112,9 @@ if($type == 'login'){
         //顺便将数据库文件下载信息一起删除
         $k = md5($_GET['file']);
         if($redis->srem("task",$k)){
+            if($redis->ttl($k) == -1){
+                $redis->persist($k);            //如果这个Key有失效时间 则先删除失效时间
+            }
             $redis->delete($k);
         }
         $redis->close();
@@ -196,8 +199,11 @@ if($type == 'login'){
         $_data = $redis->get($_GET['inquirykey']);
         $data = dejson($_data);
         if(!$data->downing){        //如果已经下载完成了
-            if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除
-                $redis->expire($_GET['inquirykey'],5);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为5s
+            //if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除
+                
+            //}
+            if($redis->ttl($_GET['inquirykey']) == -1){           //只有在没有设置失效时间时才设置Key的失效时间
+                $redis->expire($_GET['inquirykey'],60*10);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为10min
             }
         }
         else if($data->starttime){
