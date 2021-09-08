@@ -3,6 +3,7 @@ ini_set("session.cookie_httponly", 1);
 header('Access-Control-Allow-Origin:*');
 
 define("config","user");                //定义配置文件所在目录
+define("logpath","log/");
 
 require_once("php/function.php");
 if(file_exists(config."/setup.php")){
@@ -105,6 +106,7 @@ if($type == 'login'){
     
 }else if($type == "delfile"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    writelog("删除文件:".$_GET['file'],"删除文件");
     if(isset($_GET['file']) && file_exists(SAVEPATH.$_GET['file'])){
         chmod(SAVEPATH.$_GET['file'],0777);
         @unlink(SAVEPATH.$_GET['file']);
@@ -124,17 +126,20 @@ if($type == 'login'){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
         chmod(SAVEPATH.$_GET['file'],0777);
+        writelog("文件:".$_GET['file'],"下载文件到浏览器");
         downtoweb($_GET['file']);
     }
 }else if($type == "openfile"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
         chmod(SAVEPATH.$_GET['file'],0777);
+        writelog("文件:".$_GET['file'],"浏览器在线打开文件");
         downtoweb($_GET['file'],true);
     }
 }else if($type == "curl"){                          //下载文件到服务器
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){
+        writelog("建立离线下载任务,链接:{$_GET['url']}","离线下载");
         $fcurl = new curl(trim($_GET['url']));
         $fcurl->start();
     }
@@ -164,6 +169,7 @@ if($type == 'login'){
     }
 }else if($type == "deldowntask"){//删除下载任务
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    writelog("任务id:".(isset($_GET['task'])?$_GET['task']:" 未附带任务id"),"删除下载任务");
     if(isset($_GET['task'])){
         $redis = linkRedis();
         $data = dejson($redis->get($_GET['task']));
@@ -204,6 +210,7 @@ if($type == 'login'){
             //}
             if($redis->ttl($_GET['inquirykey']) == -1){           //只有在没有设置失效时间时才设置Key的失效时间
                 $redis->expire($_GET['inquirykey'],60*10);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为10min
+                writelog("下载任务成功,[Key({$_GET['inquirykey']})] (查询信息10min后删除),URL:{$data->url}","离线下载");
             }
         }
         else if($data->starttime){
@@ -212,7 +219,9 @@ if($type == 'login'){
                     $redis->del($_GET['inquirykey']);            //在redis中将这个key删除掉
                     $data->fail = true;                          //告诉前端出错
                     $_data =json($data);
+                    writelog("下载任务 [Key({$_GET['inquirykey']})] [Save({$data->file})] [URL({$data->url})]超时,删除Redis中的查询key","离线下载任务超时(24h)");
                 }
+                
             }
         }
         $redis->close();

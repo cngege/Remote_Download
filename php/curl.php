@@ -111,6 +111,7 @@ class curl{
                 header("Content-Length: ${ob_get_length()}");
                 ob_end_flush();
                 flush();
+                writelog("服务器容量不足，剩余:${round($freesize/1024/1024,2)}MB","离线下载Error");
             }
 
             
@@ -124,6 +125,7 @@ class curl{
             fclose($this->fp);
             @unlink(SAVEPATH.$this->downfilename);
             $this->redis->close();
+            writelog("离线下载发生错误[(Key){$this->key}],[(Save){$_json->file}],[(URL){$_json->url}]"."\n离线下载错误内容:{$e->getMessage()}","离线下载Error");
             exit(json(array("code"=>3,"msg"=>"CURL抛出异常:".$e->getMessage())));
         }
 
@@ -140,6 +142,7 @@ class curl{
             @unlink(SAVEPATH.$this->downfilename);
             $this->redis->set("curlclose","");
             $this->redis->close();
+            writelog("检测到要求结束离线下载任务,已结束并删除 {$this->key} {$this->downfilename}","离线下载");
             return;
         }
         $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
