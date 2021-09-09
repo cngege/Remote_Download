@@ -431,7 +431,7 @@ function phpescape($str){//这个是加密用的
 // 异步写日志, 自动写入时间 $log- 日志内容 $sort- 分类
 function writelog($log,$sort){
     $log_filename = date('Y_m_d')."_LOG.log";
-    $timetick = date('Y_m_d h:i:s');
+    $timetick = date('Y_m_d H:i:s');
     if(!file_exists(logpath)){@mkdir(logpath,0777,true);}
     $f = file_put_contents(logpath.$log_filename, "[".$timetick."]".($sort?"[".$sort."]":"")." ".$log."\n",FILE_APPEND);
     return $f;

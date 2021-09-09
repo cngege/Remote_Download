@@ -13,6 +13,7 @@ require_once("php/login.php");
 require_once("php/curl.php");
 header('Content-type: application/json; charset=utf-8');
 
+$ipstr = isset($_SERVER['HTTP_X_FORWARDED_FOR'])?("代理IP:".$_SERVER['HTTP_X_FORWARDED_FOR']):($_SERVER['REMOTE_ADDR'].":".$_SERVER['REMOTE_PORT']);
 $type = @$_GET['type'];
 $isins = isinstall();           //变量 此次请求的时候服务器是否已经安装过了
 
@@ -87,15 +88,19 @@ if(!$isins){                            //如果没有安装
 if($type == 'login'){
     if(isset($_POST['key'])){
         if(login($_POST['key'])){
+            writelog("用户登录,登录成功",$ipstr);
             exit(json(array("code"=>1,"value"=>true)));     //密码正确
         }else{
+            writelog("用户登录,登录失败 - 密码不正确",$ipstr);
             exit(json(array("code"=>1,"value"=>false)));    //密码不正确
         }
     }else{
+        writelog("用户登录,失败,使用错误的URL参数:{$_SERVER['REQUEST_URI']}",$ipstr);
         exit(json(array("code"=>2)));               //URL出错
     }
 }else if($type == 'logout'){                        //退出登录
     logout();
+    writelog((islogin()?"已登录用户":"未登录用户")."主动退出登录",$ipstr);
     exit(json(array("code"=>1,"value"=>true)));
 }else if($type == "getfilelist"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录    
@@ -230,6 +235,8 @@ if($type == 'login'){
 }else if($type == "getcapa"){    //获取文件保存目录剩余空间使用情况[剩余空间/总空间]
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     exit(json(array("code"=>1,"max"=>getmaxsize(),"free"=>getfreesize())));
+}else{
+    writelog("前端尝试使用未知参数：{$type} ,URL:{$_SERVER['REQUEST_URI']}",$ipstr);
 }
 
 
