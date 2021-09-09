@@ -144,7 +144,7 @@ if($type == 'login'){
 }else if($type == "curl"){                          //下载文件到服务器
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['url'])){
-        writelog("建立离线下载任务,链接:{$_GET['url']}","离线下载");
+        //writelog("建立离线下载任务,链接:{$_GET['url']}","离线下载");
         $fcurl = new curl(trim($_GET['url']));
         $fcurl->start();
     }

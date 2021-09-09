@@ -71,8 +71,9 @@ class curl{
                 } 
                 
                 $this->write($this->url,$this->downfilename,null,null,false,true);
-                
                 $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
+                
+                writelog("建立离线下载任务,链接:{$this->url} 文件大小:{$this->urlsize}, 保存文件名:{$this->downfilename} ","离线下载");
 
                 $ch = curl_init($this->url);
                 curl_setopt($ch, CURLOPT_FILE, $this->fp);
