@@ -373,11 +373,13 @@ function rewrite_m3u8($path,$durl){
                     $pos += 5;
                 }
                 $lstr = substr($line,0,$pos);
-                $rstr = substr($line, $pos , strlen($line) - $pos);
+                $rstr = substr($line, $pos , strlen($line) - $pos);        //key中的url开始部分
                 if(substr($rstr, 0 , 1) == "/"){    //左斜杠开头
                     $rs = parse_url($durl);
                     $m3u8_data .= $lstr . ($rs["scheme"]?($rs["scheme"]."://"):("http://")) . $rs["host"] . $rstr . "\n";
                 }else if(substr($line, 0, strlen("http")) === "http"){
+                    $m3u8_data .= $line . "\n";
+                }else if(substr($rstr, 0 , strlen("http")) == "http"){
                     $m3u8_data .= $line . "\n";
                 }else{
                     $m3u8_data .= $lstr . substr($durl,0,strrpos($durl,"/")+1) . $rstr . "\n";
