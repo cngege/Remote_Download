@@ -81,6 +81,16 @@ class curl{
                 if(isset($_GET['downcookie'])){
                     curl_setopt($ch, CURLOPT_COOKIE, $_GET['downcookie']);
                 }
+                if(isset($_GET['setproxy'])){
+                    curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC); //代理认证模式 CURLPROXY_SOCKS5
+                    curl_setopt($ch, CURLOPT_PROXY, $_GET['setproxy_ip']); //代理服务器地址
+                    curl_setopt($ch, CURLOPT_PROXYPORT, (int)$_GET['setproxy_port']); //代理服务器端口
+                    if($_GET['setproxy_username']&&$_GET['setproxy_password']){
+                        //http代理认证帐号，username:password的格式
+                        curl_setopt($ch, CURLOPT_PROXYUSERPWD, $_GET['setproxy_username'].":".$_GET['setproxy_password']);
+                    }
+                    curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); //使用http代理模式
+                }
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
                 curl_setopt($ch, CURLOPT_REFERER, $this->url);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 

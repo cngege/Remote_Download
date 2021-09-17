@@ -36,7 +36,7 @@
         </div>
         <!-- Download input div -->
         <div class="download_box">
-          <div class="download_input">
+          <div class="download_input input">
             <input type="text" class="font3" placeholder="填入下载URL地址">
           </div>
           <div class="download_btn font2">
@@ -162,7 +162,35 @@
             <div class="line"><span></span></div>
           </label>
         </div>
-        <textarea class="setcookie_text font2" placeholder="如:a=b;c=d;name=zhangsan"></textarea>
+        <!-- 设置页面中setcookie部分 -->
+        <div class="switch_box setproxy">
+          <span class="text">指定离线下载的代理服务器</span>
+          <label id="setproxy_switch" class="switch setproxy_switch">
+            <input type="checkbox">
+            <div class="line"><span></span></div>
+          </label>
+        </div>
+        <div class="switch_box_child">
+          <div class="inputL">
+            <div class="input">
+              <input class="font3" type="text" id="proxy_ipaddress" name="proxy_ipaddress" value="" placeholder="127.0.0.1">
+            </div>
+            <div class="input">
+              <input class="font3" type="text" id="proxy_port" name="proxy_port" value="" placeholder="8080">
+            </div>
+          </div>
+          <div class="inputR">
+            <div class="input">
+              <input class="font3" type="text" id="proxy_username" name="proxy_username" value="" placeholder="username">
+            </div>
+            <div class="input">
+              <input class="font3" type="text" id="proxy_password" name="proxy_password" value="" placeholder="password">
+            </div>
+          </div>
+
+        </div>
+        <!-- 设置页面中Cookie填写输入框部分 -->
+        <textarea class="setcookie_text font2" placeholder="Cookie如:a=b;c=d;name=zhangsan"></textarea>
         <!-- 最后一行按钮 logout&close -->
         <div class="btn_box">
           <button type="button" class="logout">退出登录</button>

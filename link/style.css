@@ -159,20 +159,27 @@ body{
 }
 
 /* 输入框 */
-.download_box .download_input{
-  position: absolute;
-  right: 80px;
-  width: calc(100% - 80px);
+
+
+.input{
   border-bottom: 2px solid #44bd32;
+  caret-color: #4cd137;                            /*输入框 光标颜色*/
 }
-.download_box .download_input input[type="text"]{
+
+.input input[type="text"]{
   width: 100%;
   height: 35px;
   outline: none;
   border: 0;
   background-color: transparent;
-  caret-color: #4cd137;                            /*输入框 光标颜色*/
 }
+
+.download_box .download_input{
+  position: absolute;
+  right: 80px;
+  width: calc(100% - 80px);
+}
+
 
 .download_box .download_btn{
   position: absolute;
@@ -537,6 +544,29 @@ body{
   font-weight: bold;
 }
 
+/* 设置代理服务器复选框 及输入框 */
+.setup_form_box .switch_box.setproxy:hover + .switch_box_child,
+.setup_form .switch_box_child:hover
+{
+  opacity: 1;
+  height:80px;
+}
+
+.setup_form .switch_box_child{
+  opacity: 0;
+  height:0px;
+  display: flex;
+  background: #00000010;
+  margin-bottom: 5px;
+  transition: .5s all;
+}
+
+.setup_form .switch_box_child .inputL,.setup_form .switch_box_child .inputR{
+  width: 48%;
+  margin-left:auto
+}
+
+
 /* 设置Cookie 的文本输入 */
 .setup_form_box .setup_form .setcookie_text{
   position: relative;
@@ -551,6 +581,7 @@ body{
   border: none;
   outline:1px solid #00a8ff;
 }
+
 
 /* 设置窗口最后一行按钮 */
 .setup_form_box .setup_form .btn_box{
@@ -936,11 +967,10 @@ body{
   text-align: center;
 }
 
-.rename_div .input{
+/*
+.rename_div .input[type="text"]{
   width: 100%;
-  border-bottom: 2px solid #44bd32;
-  caret-color: #4cd137;                            /*输入框 光标颜色*/
-}
+} */
 
 .rename_div .input input{
   width: 100%;

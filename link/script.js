@@ -12,7 +12,7 @@ let exts = {
 
 $(function(){
   if(document.URL.indexOf("file://")==0){
-    serveraddr="http://cngege.f3322.net/wget/";
+    serveraddr="http://cngege.f3322.net:81/wget/";
     //serveraddr="http://192.168.10.10/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
@@ -56,15 +56,25 @@ $(function(){
       if($(".install").css('display')=="none"){
         $(".setup_form_box").css("display","inline");   //显示设置页窗口
         if(localStorage.getItem("wget_rewritem3u8")){
-          $(".setup_form_box .rewritem3u8 input").attr("checked","checked");
+          $('.setup_form_box .rewritem3u8 input[type="checkbox"]').attr("checked","checked");
         }
         if(localStorage.getItem("wget_issetcookie")){
-          $(".setup_form_box .setcookie input").attr("checked","checked");
+          $('.setup_form_box .setcookie input[type="checkbox"]').attr("checked","checked");
         }
         if(localStorage.getItem("wget_setrename")){
-          $(".setup_form_box .setrename input").attr("checked","checked");
+          $('.setup_form_box .setrename input[type="checkbox"]').attr("checked","checked");
+        }
+        if(localStorage.getItem("wget_setproxy")){
+          $('.setup_form_box .setproxy input[type="checkbox"]').attr("checked","checked");
         }
         $(".setup_form_box .setup_form .setcookie_text").val(localStorage.getItem("wget_downcookie") || "");
+
+        //代理信息
+        $("#proxy_ipaddress").val(localStorage.getItem("wget_proxy_ip") || "");
+        $("#proxy_port").val(localStorage.getItem("wget_proxy_port") || "");
+        $("#proxy_username").val(localStorage.getItem("wget_proxy_username") || "");
+        $("#proxy_password").val(localStorage.getItem("wget_proxy_password") || "");
+
       }
     }
     startintval=0;
@@ -107,7 +117,14 @@ $(".download_box .download_btn button").click(function(event) {
       if(ctrl_keydown){ //按下了ctrl 本来是重命名 取反 后直接下载
         SendDownload($(".download_input input").val(),{
           cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
-          rename:""
+          rename:"",
+          setproxy:{
+              is:localStorage.getItem("wget_setproxy"),
+              ip:localStorage.getItem("wget_proxy_ip"),
+              port:localStorage.getItem("wget_proxy_port"),
+              username:localStorage.getItem("wget_proxy_username"),
+              password:localStorage.getItem("wget_proxy_password")
+          }
         });
       }else{            //没有按下ctrl 本来是重命名 不取反 显示重命名
         $(".rename_div").css("display","inline"); //显示
@@ -123,7 +140,14 @@ $(".download_box .download_btn button").click(function(event) {
       }else{            //没有按下ctrl 本来不是重命名 不取反 直接下载
         SendDownload($(".download_input input").val(),{
           cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
-          rename:""
+          rename:"",
+          setproxy:{
+              is:localStorage.getItem("wget_setproxy"),
+              ip:localStorage.getItem("wget_proxy_ip"),
+              port:localStorage.getItem("wget_proxy_port"),
+              username:localStorage.getItem("wget_proxy_username"),
+              password:localStorage.getItem("wget_proxy_password")
+          }
         });
       }
     }
@@ -137,7 +161,14 @@ $(".download_box .download_btn button").on('touchstart',function(e){
     if(localStorage.getItem("wget_setrename")){
       SendDownload($(".download_input input").val(),{
         cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
-        rename:""
+        rename:"",
+        setproxy:{
+            is:localStorage.getItem("wget_setproxy"),
+            ip:localStorage.getItem("wget_proxy_ip"),
+            port:localStorage.getItem("wget_proxy_port"),
+            username:localStorage.getItem("wget_proxy_username"),
+            password:localStorage.getItem("wget_proxy_password")
+        }
       });
     }else{
       $(".rename_div").css("display","inline"); //显示
@@ -187,7 +218,14 @@ function sendLXDownload(){
     $(".rename_div").css("display","none"); //隐藏
     SendDownload($(".download_input input").val(),{
       cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
-      rename:newname
+      rename:newname,
+      setproxy:{
+          is:localStorage.getItem("wget_setproxy"),
+          ip:localStorage.getItem("wget_proxy_ip"),
+          port:localStorage.getItem("wget_proxy_port"),
+          username:localStorage.getItem("wget_proxy_username"),
+          password:localStorage.getItem("wget_proxy_password")
+      }
     });
   }
   $(".rename_div .input input").val("");
@@ -206,6 +244,13 @@ function SendDownload(url,json){
     }
     if(localStorage.getItem("wget_rewritem3u8")){
       senddata.rewritem3u8 = "1";
+    }
+    if(json.setproxy.is){
+      senddata.setproxy = 1;
+      senddata.setproxy_ip=json.setproxy.ip;
+      senddata.setproxy_port=json.setproxy.port;
+      senddata.setproxy_username=json.setproxy.username;
+      senddata.setproxy_password=json.setproxy.password;
     }
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
@@ -345,6 +390,12 @@ $(".setup_form_box .btn_box .logout").click(function(event) {
 $(".setup_form_box .btn_box .form_close").click(function(event) {
   /* Act on the event */
   localStorage.setItem("wget_downcookie",$(".setup_form_box .setup_form .setcookie_text").val());
+  // 代理服务器信息
+  localStorage.setItem("wget_proxy_ip",$("#proxy_ipaddress").val());
+  localStorage.setItem("wget_proxy_port",$("#proxy_port").val());
+  localStorage.setItem("wget_proxy_username",$("#proxy_username").val());
+  localStorage.setItem("wget_proxy_password",$("#proxy_password").val());
+
   $(".setup_form_box").hide();
 });
 
@@ -373,6 +424,17 @@ $(".setup_form_box .setrename input[type='checkbox']").click(function(event) {
 
 
 });
+
+//是否指定代理服务器复选框 被点击
+$(".setup_form_box .setproxy input[type='checkbox']").click(function(event) {
+  /* Act on the event */
+  if($(this).is(':checked')){
+    localStorage.setItem("wget_setproxy","1");
+  }else{
+    localStorage.setItem("wget_setproxy","");
+  }
+});
+
 
 //是否离线下载附带Cookie switch被点击
 $(".setup_form_box .setcookie input[type='checkbox']").click(function(event) {
