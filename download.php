@@ -113,6 +113,9 @@ if($type == 'login'){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     writelog("删除文件:".$_GET['file'],"删除文件");
     if(isset($_GET['file']) && file_exists(SAVEPATH.$_GET['file'])){
+        if(checkpathinfile($_GET['file'])){
+            exit(json(array("code"=>2,"value"=>"非法文件名:{$_GET['file']}")));
+        }
         chmod(SAVEPATH.$_GET['file'],0777);
         @unlink(SAVEPATH.$_GET['file']);
         $redis = linkRedis();
@@ -130,6 +133,9 @@ if($type == 'login'){
 }else if($type == "download"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
+        if(checkpathinfile($_GET['file'])){
+            exit(json(array("code"=>2,"value"=>"非法文件名:{$_GET['file']}")));
+        }
         chmod(SAVEPATH.$_GET['file'],0777);
         writelog("文件:".$_GET['file'],"下载文件到浏览器");
         downtoweb($_GET['file']);
@@ -137,6 +143,9 @@ if($type == 'login'){
 }else if($type == "openfile"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
+        if(checkpathinfile($_GET['file'])){
+            exit(json(array("code"=>2,"value"=>"非法文件名:{$_GET['file']}")));
+        }
         chmod(SAVEPATH.$_GET['file'],0777);
         writelog("文件:".$_GET['file'],"浏览器在线打开文件");
         downtoweb($_GET['file'],true);
@@ -150,6 +159,7 @@ if($type == 'login'){
     }
 }else if($type == "getdowninfo_one"){                //获取刚才下载的文件的进度文件[应该暂被废弃]
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
+    exit;
     if(isset($_GET['url'])){
         //$arr = array();
         
