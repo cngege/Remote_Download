@@ -308,7 +308,7 @@ function geturlname($_url,$from302=false,$header=null){
             if(!haspointfilename($name)){    //如果不是*.*格式
                 $Ctype = $headers['Content-Type'];
                 if($Ctype){
-                    $ext = GetRstr($Ctype,"/");
+                    $ext = trim(GetRstr($Ctype,"/"));
                     if($ext=="vnd.apple.mpegURL"){
                         $ext="m3u8";
                     }
@@ -437,4 +437,9 @@ function writelog($log,$sort){
     if(!file_exists(logpath)){@mkdir(logpath,0777,true);}
     $f = file_put_contents(logpath.$log_filename, "[".$timetick."]".($sort?"[".$sort."]":"")." ".$log."\n",FILE_APPEND);
     return $f;
+}
+
+//检测文件名中是否含有路径符号 没有返回false
+function checkpathinfile($path){
+    return strstr($path,"/") || strstr($path,"\\");
 }
