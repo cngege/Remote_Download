@@ -7,12 +7,12 @@ let ctrl_keydown = false;
 let exts = {
   img:["png","jpg","jpeg","gif","webp"],
   video:[["mp4","video/mp4"],["rmvb","video/rmvb"],["flv","video/flv"],["amr","video/amr"],["webm","video/webm"],["m3u8","application/x-mpegURL"]],
-  audio:[["mp3","audio/mp3"],["ogg","audio/ogg"],["wav","audio/wav"]]
+  audio:[["mp3","audio/mp3"],["ogg","audio/ogg"],["wav","audio/wav"],["flac","audio/flac"]]
 };
 
 $(function(){
   if(document.URL.indexOf("file://")==0){
-    serveraddr="http://cngege.f3322.net:81/wget/";
+    serveraddr="http://cngege.f3322.net:8000/wget/";
     //serveraddr="http://192.168.10.10/wget/";
     $.jqAlert({content:"使用DEBUG模式",type:"warning",autoTime:5});
   }
