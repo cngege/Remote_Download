@@ -224,8 +224,8 @@ if($type == 'login'){
                 
             //}
             if($redis->ttl($_GET['inquirykey']) == -1){           //只有在没有设置失效时间时才设置Key的失效时间
-                $redis->expire($_GET['inquirykey'],60*10);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为10min
-                writelog("下载任务成功,[Key({$_GET['inquirykey']})] (查询信息10min后删除),URL:{$data->url}","离线下载");
+                $redis->expire($_GET['inquirykey'],60*60*2);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为2小时
+                writelog("下载任务成功,[Key({$_GET['inquirykey']})] (查询信息2h后删除),URL:{$data->url}","离线下载");
             }
         }
         else if($data->starttime){
