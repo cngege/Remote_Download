@@ -203,12 +203,12 @@ function downtoweb($_name,$_isstream = false){
         while (!feof($file)){
           $p = min(1024*1024, ($end - $begin + 1));
           $begin = $begin + $p;
-          echo fread($file,$p);// 发送当前部分文件给浏览者
-          ob_flush();
-          flush();// flush 内容输出到浏览器端
           if($p <= 0){
               break;
           }
+          echo fread($file,$p);// 发送当前部分文件给浏览者
+          ob_flush();
+          flush();// flush 内容输出到浏览器端
         } 
         fclose($file);// 关闭文件流
     }else{

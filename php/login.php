@@ -1,7 +1,7 @@
 <?php
 function islogin(){
     //return true;
-    if(PASSWD == $_COOKIE['key']){
+    if(array_key_exists('key',$_COOKIE) && PASSWD == $_COOKIE['key']){
         return true;
     }
     return false;
