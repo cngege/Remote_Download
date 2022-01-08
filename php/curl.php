@@ -52,7 +52,6 @@ class curl{
                     $this->downfilename = urldecode($this->downfilename."[".$num."]");    //最后确认要保存到本地的文件名
                 }
             }
-
             $maxsize = getmaxsize();
             $freesize = getfreesize();
             //如果剩余容量足够
@@ -63,7 +62,7 @@ class curl{
                 $this->redis->sadd("task",$this->key);                         //向redis：task集合前增加此下载任务
                 echo json(array("code"=>1,"value"=>true,"key"=>$this->key));    //返回前端，传递此次任务的key
                 
-                header("Content-Length: ${ob_get_length()}");
+                header("Content-Length: ".ob_get_length());
                 ob_end_flush();
                 flush();
                 if (function_exists("fastcgi_finish_request")) {
@@ -74,7 +73,7 @@ class curl{
                 $this->fp = fopen(SAVEPATH.$this->downfilename, 'wb');
                 
                 writelog("建立离线下载任务,链接:{$this->url} 文件大小:{$this->urlsize}, 保存文件名:{$this->downfilename} ","离线下载");
-
+                
                 $ch = curl_init($this->url);
                 curl_setopt($ch, CURLOPT_FILE, $this->fp);
                 //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);    //如果是0会导致curl的远程数据echo到前端
@@ -91,8 +90,12 @@ class curl{
                     }
                     curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); //使用http代理模式
                 }
+                if(strpos($this-url,"https")==0){
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                }
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-                curl_setopt($ch, CURLOPT_REFERER, $this->url);
+                curl_setopt($ch, CURLOPT_REFERER, substr($this->url,0,strpos($this->url,"/",strpos($this->url,"."))+1));
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0'); 
                 curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, array($this, "progress"));
                 curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1); // 302 跳转
