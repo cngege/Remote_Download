@@ -669,6 +669,7 @@ function addfileing(fevent){
   d.prependTo($(".download_list"));
   //d.appendTo($(".download_list"));
 
+  //更新下载进度 心跳包，超时时间3s
   func.push([d,function(_e,i){
     if(_e.length <= 0 || _e.is(':hidden')){
       func[i]=[];
@@ -677,6 +678,7 @@ function addfileing(fevent){
         url: serveraddr+"download.php",
         data:{type:"getdowning",inquirykey:fevent.key},
         dataType: 'json',
+        timeout: 3000,
         success:function(e){
           if(!e.fail){
             if(!_e.data("data")){_e.data("data",e)}
