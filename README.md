@@ -66,7 +66,7 @@ jquery-ui-touch-punch | https://github.com/furf/jquery-ui-touch-punch
 - [x] *TODO 列表*
 - [ ] *redis 查询key不再是 文件名的md5，而是生成唯一key*
 - [ ] *运行最开始获取文件列表时,先获取所有的任务key，然后比对查询key文件名，判断文件是否在任务中*
-- [ ] *待定*
+- [ ] *前端,心跳包使用单一线程一次请求查询所有进度，而不是为每个任务都建立一个心跳包循环,以减轻后端压力*
 
   [1]: https://s.pc.qq.com/tousu/img/20210613/7018871_1623560409.jpg
   [2]: https://s.pc.qq.com/tousu/img/20210515/1364285_1621068259.jpg
