@@ -1,4 +1,4 @@
-# php离线下载
+﻿# php离线下载
  
 ![完成图][1]
 
@@ -60,6 +60,13 @@ VideoJS			          | https://videojs.com/
 Iconfont		          | 
 jqAlert			          | https://www.jq22.com/jquery-info19211
 jquery-ui-touch-punch | https://github.com/furf/jquery-ui-touch-punch
+
+**TODO**
+
+- [x] *TODO 列表*
+- [ ] *redis 查询key不再是 文件名的md5，而是生成唯一key*
+- [ ] *运行最开始获取文件列表时,先获取所有的任务key，然后比对查询key文件名，判断文件是否在任务中*
+- [ ] *待定*
 
   [1]: https://s.pc.qq.com/tousu/img/20210613/7018871_1623560409.jpg
   [2]: https://s.pc.qq.com/tousu/img/20210515/1364285_1621068259.jpg
