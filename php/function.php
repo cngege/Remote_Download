@@ -183,8 +183,15 @@ function downtoweb($_name,$_isstream = false){
             }
             fseek($file, $begin);
             header("Content-Range: bytes ".$begin."-".$end."/".$size);
+            
+            /*
+            * 日志
+            */
+            writelog("文件:".$_GET['file']." 要求从".(($begin=="0")?"文件开始":"{$begin}字节")."处开始到".(($end == $size - 1)?"文件结束":"{$end}字节处结束,文件大小{$size}"),$_isstream?"前端在线打开":"下载到前端");
+            
         }else {
             $begin = 0; $end = $size - 1;
+            writelog("文件:".$_GET['file']." 要求从文件开始到文件结尾",$_isstream?"前端在线打开":"下载到前端");
         }
         header("Content-Length: " . ($end - $begin + 1));
         
@@ -434,8 +441,10 @@ function phpescape($str){//这个是加密用的
 function writelog($log,$sort){
     $log_filename = date('Y_m_d')."_LOG.log";
     $timetick = date('Y_m_d H:i:s');
+    $dir = date('Y-m');
     if(!file_exists(logpath)){@mkdir(logpath,0777,true);}
-    $f = file_put_contents(logpath.$log_filename, "[".$timetick."]".($sort?"[".$sort."]":"")." ".$log."\n",FILE_APPEND);
+    if(!file_exists(logpath.$dir)){@mkdir(logpath.$dir,0777,true);}
+    $f = file_put_contents(logpath.$dir."/".$log_filename, "[".$timetick."]".($sort?"[".$sort."]":"")." ".$log."\n",FILE_APPEND);
     return $f;
 }
 

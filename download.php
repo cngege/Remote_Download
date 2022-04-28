@@ -134,20 +134,20 @@ if($type == 'login'){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
         if(checkpathinfile($_GET['file'])){
+            writelog("文件:".$_GET['file'],"尝试下载不存在的文件");
             exit(json(array("code"=>2,"value"=>"非法文件名:{$_GET['file']}")));
         }
         chmod(SAVEPATH.$_GET['file'],0777);
-        writelog("文件:".$_GET['file'],"下载文件到浏览器");
         downtoweb($_GET['file']);
     }
 }else if($type == "openfile"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录
     if(isset($_GET['file'])){
         if(checkpathinfile($_GET['file'])){
+            writelog("文件:".$_GET['file'],"尝试打开不存在的文件");
             exit(json(array("code"=>2,"value"=>"非法文件名:{$_GET['file']}")));
         }
         chmod(SAVEPATH.$_GET['file'],0777);
-        writelog("文件:".$_GET['file'],"浏览器在线打开文件");
         downtoweb($_GET['file'],true);
     }
 }else if($type == "curl"){                          //下载文件到服务器
@@ -224,8 +224,8 @@ if($type == 'login'){
                 
             //}
             if($redis->ttl($_GET['inquirykey']) == -1){           //只有在没有设置失效时间时才设置Key的失效时间
-                $redis->expire($_GET['inquirykey'],60*60*2);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为2小时
-                writelog("下载任务成功,[Key({$_GET['inquirykey']})] (查询信息2h后删除),URL:{$data->url}","离线下载");
+                $redis->expire($_GET['inquirykey'],3600);        //如果已经下载完成了 在redis中将这个key删除掉 改为设置key的存活期为1小时
+                writelog("下载任务成功,[Key({$_GET['inquirykey']})] (查询信息1h后删除),URL:{$data->url}","离线下载");
             }
         }
         else if($data->starttime){
