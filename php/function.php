@@ -178,6 +178,8 @@ function downtoweb($_name,$_isstream = false){
             header("HTTP/1.1 206 Partial Content");
             list($name, $range) = explode("=", $_SERVER['HTTP_RANGE']);
             list($begin, $end) =explode("-", $range);
+            $begin=(int)$begin;
+            $end=(int)$end;
             if($end == 0){
                 $end = $size - 1;
             }

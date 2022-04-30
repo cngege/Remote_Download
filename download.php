@@ -3,6 +3,7 @@
 //ini_set('display_startup_errors',1);
 //error_reporting(-1);                    //打印出所有的 错误信息
 //ini_set('error_log', dirname(__FILE__) . '/error_log.txt');
+//ini_set("safe_mode",1);
 
 ini_set("session.cookie_httponly", 1); 
 header('Access-Control-Allow-Origin:*');
