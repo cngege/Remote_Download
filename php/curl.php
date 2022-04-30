@@ -27,12 +27,12 @@ class curl{
             header('Content-type: application/json; charset=utf-8');
             ob_start();
             $num = 0;
-            if(isset($_GET['rename']) || $_GET['rename']!=""){
+            if(isset($_GET['rename']) && $_GET['rename']!=""){
                 $this->downfilename = $_GET['rename'];
             }else{
                 $this->downfilename = basename2($this->url);    //解析出将保存到本地的文件名
             }
-            $this->urlsize = filesize($this->url);
+            $this->urlsize = @filesize($this->url);
             if(file_exists(SAVEPATH.$this->downfilename)){
                 //要下载的文件本地已经存在了
                 //进行重命名
@@ -90,7 +90,7 @@ class curl{
                     }
                     curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); //使用http代理模式
                 }
-                if(strpos($this-url,"https")==0){
+                if(strpos($this->url,"https")==0){
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
                 }

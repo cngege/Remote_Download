@@ -1,4 +1,9 @@
 <?php
+//ini_set('display_errors',1);
+//ini_set('display_startup_errors',1);
+//error_reporting(-1);                    //打印出所有的 错误信息
+//ini_set('error_log', dirname(__FILE__) . '/error_log.txt');
+
 ini_set("session.cookie_httponly", 1); 
 header('Access-Control-Allow-Origin:*');
 
@@ -24,6 +29,10 @@ if(!$isins){                            //如果没有安装
     if($type == "install"){             //如果type标记是安装
         if(isset($_GET['circuit'])){
             if($_GET['circuit'] == "has_rely"){//流程是判断 是否有curl这个php扩展 改为判断各扩展的安装情况
+                if(defined("SAVEPATH"))
+                {
+                    unlink(config."/setup.php");
+                }
                 exit(json(array(
                     "code"=>1,
                     "value"=>array("curl"=>function_exists("curl_init"),"redis"=>class_exists("Redis"))
@@ -31,7 +40,7 @@ if(!$isins){                            //如果没有安装
             }else if($_GET['circuit'] == "setsavepath"){    //流程是设置下载文件的保存目录
                 if(isset($_GET['path'])){
                     //$path = iconv("UTF-8", "GBK",$_GET['path']);
-                    $path = $_GET['path'];
+                    $path = str_replace('\\','/',str_replace('\\\\','/',$_GET['path']));
                     if(is_dir($path)){
                         if(check_dir_iswritable($path)){
                             writesetup("SAVEPATH",$path);
@@ -125,7 +134,7 @@ if($type == 'login'){
             if($redis->ttl($k) == -1){
                 $redis->persist($k);            //如果这个Key有失效时间 则先删除失效时间
             }
-            $redis->delete($k);
+            $redis->del($k);
         }
         $redis->close();
         exit(json(array("code"=>1,"value"=>!file_exists(SAVEPATH.$_GET['file']))));

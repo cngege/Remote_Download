@@ -279,8 +279,8 @@ function geturlname($_url,$from302=false,$header=null){
     if(!empty($headers['Location'])){//如果有302跳转
         return geturlname($headers['Location'],true);
     }else{
-        $reheader = $headers['Content-Disposition'];
         if(isset($headers['Content-Disposition'])){//  [^;=\n]*=((['"]).*?\2|[^;\n]*)
+            $reheader = $headers['Content-Disposition'];
             $reDispo = '/.*filename=(([\'\"]).*?\2|[^;\n]*)/m';
             if (preg_match($reDispo, $reheader, $mDispo))
             {
@@ -451,4 +451,15 @@ function writelog($log,$sort){
 //检测文件名中是否含有路径符号 没有返回false
 function checkpathinfile($path){
     return strstr($path,"/") || strstr($path,"\\");
+}
+
+function uuid()
+{
+	$chars = md5(uniqid(mt_rand(), true));
+	$uuid = substr($chars, 0, 8).'-';
+	$uuid .= substr($chars, 8, 4).'-';
+	$uuid .= substr($chars, 12, 4).'-';
+	$uuid .= substr($chars, 16, 4).'-';
+	$uuid .= substr($chars, 20, 12);
+	return $uuid;
 }
