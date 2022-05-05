@@ -1,7 +1,5 @@
 ﻿# php离线下载
  
-![完成图][1]
-
 **部署文件到服务端后第一次在浏览器打开自动提示部署**
 
  - 检查服务器相关插件是否正常部署php_curl redis等
@@ -44,9 +42,9 @@
 如果需要重新进行服务端配置或忘记密码，可删除服务端user文件夹即可
 该前端页面弱兼容手机端
 不支持其他语言
-![内置图片查看][2]
-![设置][3]
-![移动端][4]
+
+![移动端][1] | ![内置图][2]
+---|---
 
 **开源库**
 
@@ -55,7 +53,7 @@
 项目  | 地址
 ------------- | -------------
 Jquery 			          | https://jquery.com/
-Jquery_UI 		        | https://jqueryui.com/
+Jquery_UI 		          | https://jqueryui.com/
 VideoJS			          | https://videojs.com/
 Iconfont		          | 
 jqAlert			          | https://www.jq22.com/jquery-info19211
@@ -67,10 +65,8 @@ jquery-ui-touch-punch | https://github.com/furf/jquery-ui-touch-punch
 - [ ] *redis 查询key不再是 文件名的md5，而是生成唯一key*
 - [ ] *运行最开始获取文件列表时,先获取所有的任务key，然后比对查询key文件名，判断文件是否在任务中*
 - [ ] *前端,心跳包使用单一线程一次请求查询所有进度，而不是为每个任务都建立一个心跳包循环,以减轻后端压力*
-- [ ] *前端登录获取的token不再固定，一个客户端推出,其他客户端都得重新验证密码，后端存储两个验证密钥，基础密钥A和动态密钥B，计算的值作为前端的token，退出登录将导致B变化*
+- [x] *前端登录获取的token不再固定，一个客户端推出,其他客户端都得重新验证密码，后端存储两个验证密钥，基础密钥A和动态密钥B，计算的值作为前端的token，退出登录将导致B变化*
 - [x] *日志自动保存在年月组成的文件夹中,且打开和下载类型的日志有更加详细的输出*
 
-  [1]: https://s.pc.qq.com/tousu/img/20210613/7018871_1623560409.jpg
-  [2]: https://s.pc.qq.com/tousu/img/20210515/1364285_1621068259.jpg
-  [3]: https://s.pc.qq.com/tousu/img/20210515/7459126_1621068265.jpg
-  [4]: https://s.pc.qq.com/tousu/img/20210515/2859324_1621068269.jpg
+  [1]: https://github.com/cngege/Remote_Download/raw/master/.github/img/1.jpg
+  [2]: https://github.com/cngege/Remote_Download/raw/master/.github/img/2.png

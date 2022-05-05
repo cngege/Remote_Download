@@ -83,6 +83,7 @@ if(!$isins){                            //如果没有安装
             }else if($_GET['circuit'] == "setpasswd"){              //创建访问密码
                 if(isset($_POST['key'])){
                     writesetup("PASSWD",md5(md5($_POST['key'])));
+                    writesetup("Token",uuid());
                     if(file_exists(config."/setup.php")){
                         file_put_contents(config."/install.lock","install ok");
                     }
@@ -109,9 +110,9 @@ if($type == 'login'){
         exit(json(array("code"=>2)));               //URL出错
     }
 }else if($type == 'logout'){                        //退出登录
-    logout();
-    writelog((islogin()?"已登录用户":"未登录用户")."主动退出登录",$ipstr);
-    exit(json(array("code"=>1,"value"=>true)));
+    $success = logout();
+    writelog((islogin()?"已登录用户":"未登录用户")."主动退出登录".$success?"成功":"失败",$ipstr);
+    exit(json(array("code"=>1,"value"=>$success)));
 }else if($type == "getfilelist"){
     if(!islogin()){exit(json(array("code"=>4)));}   //没有登录 要求登录    
     exit(json(array("code"=>1,"value"=>getdirfile())));
