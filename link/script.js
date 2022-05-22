@@ -255,7 +255,7 @@ function SendDownload(url,json){
     $.ajax({  //告诉服务器离线下载
       url: serveraddr+"download.php",
       data: senddata,
-      //timeout: 500,
+      timeout: 2000,
       success:function(ve){
         if(code(ve)){
           if(ve.value){
@@ -264,6 +264,12 @@ function SendDownload(url,json){
             $(".download_input input").val('');
             $.jqAlert({content:"已建立下载任务",type:"success"});
           }
+        }
+      },
+      complete: function(XMLHttpRequest, textStatus) {
+      //超时,status还有success,error等值的情况
+        if (textStatus == 'timeout') {
+          location.reload();
         }
       }
     })
