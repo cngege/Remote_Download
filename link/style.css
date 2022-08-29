@@ -980,9 +980,23 @@ body{
   background-color: transparent;
 }
 
+.rename_div .SuffixAndBtn_box{
+  margin-top: 15px;
+}
+
+.rename_div .Suffix li{
+  margin-right: 10px;
+  padding: 2px 6px;            /* 上右下左 */
+  float: left;
+  list-style-type: none;
+  background: #d0ece7;
+  border-radius: 6px;
+  color: #9c88ff;
+}
+
 .rename_div .btn_box{
   width: 100%;
-  margin-top: 15px;
+  /* margin-top: 15px; */
 }
 
 .rename_div .btn_box button{

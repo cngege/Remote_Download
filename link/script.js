@@ -130,6 +130,8 @@ $(".download_box .download_btn button").click(function(event) {
         $(".rename_div").css("display","inline"); //显示
         //自动获取焦点
         $(".rename_div .input input").focus();
+        //填写历史后缀以供快速取用
+        RWSuffix();
       }
     }
     else{                                       //下载
@@ -137,6 +139,8 @@ $(".download_box .download_btn button").click(function(event) {
         $(".rename_div").css("display","inline"); //显示
         //自动获取焦点
         $(".rename_div .input input").focus();
+        //填写历史后缀以供快速取用
+        RWSuffix();
       }else{            //没有按下ctrl 本来不是重命名 不取反 直接下载
         SendDownload($(".download_input input").val(),{
           cookie:localStorage.getItem("wget_issetcookie")?localStorage.getItem("wget_downcookie"):"",
@@ -174,6 +178,8 @@ $(".download_box .download_btn button").on('touchstart',function(e){
       $(".rename_div").css("display","inline"); //显示
       //自动获取焦点
       $(".rename_div .input input").focus();
+      //填写历史后缀以供快速取用
+      RWSuffix();
     }
   }, 1000);
 })
@@ -199,11 +205,43 @@ $(".download_input input").keydown(function(event) {
   }
 });
 
-//输入框回车下载
+//重命名窗口中 输入框键盘事件
 $(".rename_div .input input").keydown(function(event) {
   /* Act on the event */
-  if(event.originalEvent.keyCode == 13){
+  if(event.originalEvent.keyCode == 13){  //回车
     sendLXDownload();
+  }
+  else if(event.originalEvent.keyCode == 9){  //tab
+    //判断输入内容是否没有后缀
+    var fn = $(".rename_div .input input").val(); //完整的文件名
+    var name = splitFileName(fn);                 //去掉后缀的文件名
+    var ext = getExt(fn);                         //文件的后缀名(.mp4)
+    if(ext){
+      ext = ext.toLowerCase();
+    }
+    var exts = $(".rename_div .Suffix li");
+    if(fn == ""){   //如果重命名框里没有输入 那什么都不做
+      return;
+    }
+    if(!ext){       //如果重命名的文件没有后缀，那直接将历史记录中的第一个附加上去
+      var liext = $(exts[0]).text();
+      if(liext){
+        $(".rename_div .input input").val(fn + liext);
+      }
+      event.preventDefault ? event.preventDefault() : event.returnValue = false;
+      return;
+    }
+    else{           //说明输入是有后缀的
+      for(i=0;i<exts.length;i++){
+        if(ext != $(exts[i]).text()){
+          if($(exts[i]).text()){
+            $(".rename_div .input input").val(name + $(exts[i]).text());
+          }
+          break;
+        }
+      }
+    }
+    event.preventDefault ? event.preventDefault() : event.returnValue = false;
   }
 });
 
@@ -212,6 +250,47 @@ $(".rename_div .btn_box button").click(function(event) {
   sendLXDownload();
 });
 
+//将重命名窗口中的历史后缀名从数据库中读取填上
+function RWSuffix(){
+  var exts = $(".rename_div .Suffix li");
+  $(exts[0]).text(localStorage.getItem("wget_rename_exts_0"));
+  $(exts[1]).text(localStorage.getItem("wget_rename_exts_1"));
+  $(exts[2]).text(localStorage.getItem("wget_rename_exts_2"));
+
+  $(exts[0]).text() ? $(exts[0]).show() : $(exts[0]).hide();
+  $(exts[1]).text() ? $(exts[1]).show() : $(exts[1]).hide();
+  $(exts[2]).text() ? $(exts[2]).show() : $(exts[2]).hide();
+
+}
+
+//正则判断字符串是否有后缀
+function hasSuffix(str){
+	var reg = new RegExp("^.*\\.[^\\\\]+$")
+	return reg.test(str);
+}
+
+//获取文件名带点后缀，如果找不到返回null
+function getExt(str){
+	var ret = str.match(/\.([0-9a-z]+)(?:[\?#]|$)/i);
+	if(ret){
+		return ret[0];
+	}else{
+		return ret;
+	}
+}
+
+//截取文件名中去掉后缀的部分（包括.）
+function splitFileName(text) {
+	var pattern = /\.([0-9a-z]+)(?:[\?#]|$)/;
+	if (pattern.exec(text) !== null) {
+		return (text.slice(0, pattern.exec(text).index));
+	} else {
+		return text;
+	}
+}
+
+
+//从重命名窗口中发送下载消息
 function sendLXDownload(){
   let newname = $(".rename_div .input input").val();
   if(newname != ""){
@@ -227,8 +306,44 @@ function sendLXDownload(){
           password:localStorage.getItem("wget_proxy_password")
       }
     });
+    var ext = getExt($(".rename_div .input input").val());
+    if(ext.length > 6){
+      ext = "";
+    }
+    $(".rename_div .input input").val("");
+    if(ext){    //表示下载的文件是手动给予了后缀的,现在就是要吧后缀存起来
+      var ext_0 = localStorage.getItem("wget_rename_exts_0");
+      var ext_1 = localStorage.getItem("wget_rename_exts_1");
+      var ext_2 = localStorage.getItem("wget_rename_exts_2");
+      if(ext_0 == ext){
+        return;
+      }else if(ext_1 == ext){
+        localStorage.setItem("wget_rename_exts_1",ext_0);
+        localStorage.setItem("wget_rename_exts_0",ext);
+        return;
+      }else if(ext_2 == ext){
+        localStorage.setItem("wget_rename_exts_2",ext_0);
+        localStorage.setItem("wget_rename_exts_0",ext);
+        return;
+      }
+
+      if(!ext_0){
+        localStorage.setItem("wget_rename_exts_0",ext);
+        return;
+      }
+      if(!ext_1){
+        localStorage.setItem("wget_rename_exts_1",ext_0);
+        localStorage.setItem("wget_rename_exts_0",ext);
+        return;
+      }
+      if(!ext_2){
+        localStorage.setItem("wget_rename_exts_2",ext_1);
+        localStorage.setItem("wget_rename_exts_1",ext_0);
+        localStorage.setItem("wget_rename_exts_0",ext);
+        return;
+      }
+    }
   }
-  $(".rename_div .input input").val("");
 }
 
 function SendDownload(url,json){
