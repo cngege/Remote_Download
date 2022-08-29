@@ -264,6 +264,8 @@ $(".rename_div .input input").keydown(function(event) {
 
     }
     event.preventDefault ? event.preventDefault() : event.returnValue = false;
+  }else if(event.originalEvent.keyCode == 27){           // esc
+    $(".rename_div").css("display","none"); //隐藏
   }
 });
 
