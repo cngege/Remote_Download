@@ -80,7 +80,17 @@ $(function(){
     startintval=0;
   });
 
-
+  //重命名窗口 历史后缀点击
+  $(".rename_div .Suffix li").click(function(event) {
+    /* Act on the event */
+    var fn = $(".rename_div .input input").val(); //完整的文件名
+    if(fn){
+      var name = splitFileName(fn);                 //去掉后缀的文件名
+      if(name){
+        $(".rename_div .input input").val(name + $(this).text())
+      }
+    }
+  });
 })
 
 //当按下CTRL键的时候 变化下载按钮的效果
@@ -232,14 +242,26 @@ $(".rename_div .input input").keydown(function(event) {
       return;
     }
     else{           //说明输入是有后缀的
+      var should = 0;
       for(i=0;i<exts.length;i++){
-        if(ext != $(exts[i]).text()){
-          if($(exts[i]).text()){
-            $(".rename_div .input input").val(name + $(exts[i]).text());
+        if(ext == $(exts[i]).text()){
+          if(i == exts.length-1){     //最后一个
+            if($(exts[0]).text()){
+              should = 0;
+              break;
+            }
+          }else{
+            if($(exts[i+1]).text()){
+              should = i+1;
+              break;
+            }
           }
-          break;
         }
       }
+      if($(exts[should]).text()){
+        $(".rename_div .input input").val(name + $(exts[should]).text());
+      }
+
     }
     event.preventDefault ? event.preventDefault() : event.returnValue = false;
   }

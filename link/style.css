@@ -992,6 +992,7 @@ body{
   background: #d0ece7;
   border-radius: 6px;
   color: #9c88ff;
+  cursor: pointer;
 }
 
 .rename_div .btn_box{
