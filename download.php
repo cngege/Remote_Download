@@ -229,6 +229,9 @@ if($type == 'login'){
     if(isset($_GET['inquirykey'])){
         $redis = linkRedis();
         $_data = $redis->get($_GET['inquirykey']);
+        if(!$_data){
+            exit('{}');
+        }
         $data = dejson($_data);
         if(!$data->downing){        //如果已经下载完成了
             //if($redis->srem("task",$_GET['inquirykey'])){    //同样将这个查询key删除

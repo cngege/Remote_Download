@@ -107,17 +107,20 @@ class curl{
                 }else{
                     curl_close($ch);
                     fclose($this->fp);
-                    $_json = dejson($this->redis->get($this->key));
-                    if(!$_json->downsize){
-                        $_json->downsize = filesize(SAVEPATH.$this->downfilename);
+                    $reidsjson = $this->redis->get($this->key);
+                    if($reidsjson){
+                        $_json = dejson();
+                        if(!$_json->downsize){
+                            $_json->downsize = filesize(SAVEPATH.$this->downfilename);
+                        }
+                        if($_json->endtime==0)$_json->endtime=microtime(true)*1000;
+                        $_json->downing=false;
+                        //$this->rewrite_m3u8();
+                        if(isset($_GET['rewritem3u8']) && $_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
+                            rewrite_m3u8(SAVEPATH.$this->downfilename,$this->url);
+                        }
+                        $this->redis->set($this->key,json($_json));
                     }
-                    if($_json->endtime==0)$_json->endtime=microtime(true)*1000;
-                    $_json->downing=false;
-                    //$this->rewrite_m3u8();
-                    if(isset($_GET['rewritem3u8']) && $_GET['rewritem3u8'] == "1" && strtolower(pathinfo(SAVEPATH.$this->downfilename, PATHINFO_EXTENSION)) == "m3u8"){
-                        rewrite_m3u8(SAVEPATH.$this->downfilename,$this->url);
-                    }
-                    $this->redis->set($this->key,json($_json));
                 }
                 $this->redis->close();
             }else{
@@ -149,17 +152,19 @@ class curl{
         
         //如果要求结束下载的是我自己
         if($this->redis->get("curlclose")==$this->key){
-            curl_close($fch);
-            fclose($this->fp);
-            
-            $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,false);
-            @unlink(SAVEPATH.$this->downfilename);
+            //$this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,false);
+            $this->redis->del($this->key);
+            $this->redis->srem("task",$this->key);
             $this->redis->set("curlclose","");
             $this->redis->close();
             writelog("检测到要求结束离线下载任务,已结束并删除 {$this->key} {$this->downfilename}","离线下载");
-            return;
+            curl_close($fch);
+            fclose($this->fp);
+            @unlink(SAVEPATH.$this->downfilename);
+        }else{
+            $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
         }
-        $this->write($this->url,$this->downfilename,$countDownloadSize,$currentDownloadSize,false,!($countDownloadSize!=0 && $countDownloadSize == $currentDownloadSize));
+
     }
     
     public function write($_url,$_filename,$_max,$_size,$_fail=false,$_downing=true){
