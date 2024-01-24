@@ -109,7 +109,7 @@ class curl{
                     fclose($this->fp);
                     $reidsjson = $this->redis->get($this->key);
                     if($reidsjson){
-                        $_json = dejson();
+                        $_json = dejson($reidsjson);
                         if(!$_json->downsize){
                             $_json->downsize = filesize(SAVEPATH.$this->downfilename);
                         }
