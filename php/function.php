@@ -88,6 +88,7 @@ function getdirfile(){
     $_json = array();
     
     foreach($temp as $_v){
+	if($_v == "..") break;
         if(!is_dir($_v)){
             //取文件所在目录：dirname($v)
             $v = SAVEPATH.$_v;
