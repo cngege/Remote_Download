@@ -88,33 +88,24 @@ function getdirfile(){
     $_json = array();
     
     foreach($temp as $_v){
-	if($_v == "..") break;
+        if($_v == "..") continue;
         if(!is_dir($_v)){
             //取文件所在目录：dirname($v)
             $v = SAVEPATH.$_v;
-            
-            
-            // if(file_exists(config."/".$_v.".json")){
-            //     $_json = json_decode(file_get_contents(config."/".$_v.".json"));
-            //     if($_json->downing){
-            //         array_push($arrno,array(
-            //             "value"=>$_json,
-            //             "json"=>config."/".$_v.".json"
-            //             ));
-            //         continue;
-            //     }
-            // }
-            
             $k = md5($_v);
+            
             if($redis->sismember("task",$k)){  //判断是否是集合中的成员 如果是
-                $val = $redis->get($k);
-                //if($val && dejson($val)->downing){
-                if($val){
-                    array_push($arrno,array(
-                        "value"=>$val,
-                        "key"=>$k
-                    ));
-                    continue;
+                if($redis->exists($k)){ // 如果redis中确实存在此key
+                    $val = $redis->get($k);
+                    
+                    if($val !== false){
+                        array_push($arrno,array(
+                            "value"=>$val,
+                            "key"=>$k
+                        ));
+                        continue;
+                    }
+                    
                 }else{
                     $redis->srem("task",$k);                  //从数组中移除这个元素
                 }
@@ -145,6 +136,21 @@ function gethost(){
     }else{
         return $host;
     }
+}
+
+function isHttps() {
+    // 处理反向代理场景（如 Cloudflare、Nginx 反向代理）
+    if (isset($_SERVER['HTTP_CF_VISITOR'])) {
+        $visitor = json_decode($_SERVER['HTTP_CF_VISITOR']);
+        return isset($visitor->scheme) && $visitor->scheme === 'https';
+    }
+    // 处理常见的代理头
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        return strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https';
+    }
+    // 默认检查逻辑
+    return (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] == 1))
+        || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
 }
 
 //将服务器文件下载到客户端

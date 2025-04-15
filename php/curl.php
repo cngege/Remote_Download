@@ -125,10 +125,10 @@ class curl{
                 $this->redis->close();
             }else{
                 echo json(array("code"=>3,"msg"=>"目录容量不足无法下载该文件,剩余:".round($freesize/1024/1024,2)."MB"));    //返回前端，容量不足 不下载
-                header("Content-Length: ${ob_get_length()}");
+                header("Content-Length: {${ob_get_length()}}");
                 ob_end_flush();
                 flush();
-                writelog("服务器容量不足，剩余:${round($freesize/1024/1024,2)}MB","离线下载Error");
+                writelog("服务器容量不足，剩余:{${round($freesize/1024/1024,2)}}MB","离线下载Error");
             }
 
             

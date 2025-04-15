@@ -19,10 +19,10 @@ function login($key){
         {
             $uuidval = uuid();
             writesetup("Token",$uuidval);
-            setcookie('key',md5($md5key.$uuidval),time()+3600*24*30,null,gethost(),null,true);
+            setcookie('key',md5($md5key.$uuidval),time()+3600*24*30,"",gethost(),isHttps(),true);
             return true;
         }
-        setcookie('key',md5($md5key.Token),time()+3600*24*30,null,gethost(),null,true);
+        setcookie('key',md5($md5key.Token),time()+3600*24*30,"",gethost(),isHttps(),true);
         return true;
     }
     return false;
@@ -45,7 +45,7 @@ function logout(){
             
             //再设置 **口令 Token
             writesetup("Token",uuid());
-            setcookie('key',"",time()-3600,null,gethost(),null,true);
+            setcookie('key',"",time()-3600,"",gethost(),isHttps(),true);
             return true;
         }
         else
@@ -53,6 +53,6 @@ function logout(){
             return false;
         }
     }
-    setcookie('key',"",time()-3600,null,gethost(),null,true);
+    setcookie('key',"",time()-3600,"",gethost(),isHttps(),true);
     return true;
 }
