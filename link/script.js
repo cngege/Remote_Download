@@ -7,7 +7,7 @@ let ctrl_keydown = false;
 let exts = {
   img:["png","jpg","jpeg","gif","webp"],
   video:[["mp4","video/mp4"],["rmvb","video/rmvb"],["flv","video/flv"],["amr","video/amr"],["webm","video/webm"],["m3u8","application/x-mpegURL"]],
-  audio:[["mp3","audio/mp3"],["ogg","audio/ogg"],["wav","audio/wav"],["flac","audio/flac"]]
+  audio:[["mp3","audio/mp3"],["ogg","audio/ogg"],["wav","audio/wav"],["flac","audio/flac"],["m4a","audio/x-m4a"]]
 };
 
 $(function(){
